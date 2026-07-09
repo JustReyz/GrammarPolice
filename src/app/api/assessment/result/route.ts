@@ -39,11 +39,14 @@ export async function GET(req: NextRequest) {
     const overallMastery = overallCount > 0 ? Math.round(overallTotal / overallCount) : 0;
 
     // Determine rank
-    let rank = "Grammar Cadet";
-    if (overallMastery >= 90) rank = "Elite Cadet";
-    else if (overallMastery >= 75) rank = "Senior Cadet";
-    else if (overallMastery >= 60) rank = "Cadet II";
-    else if (overallMastery >= 40) rank = "Cadet I";
+    let rank = "🚗 Learner";
+    if (overallMastery >= 97) rank = "👑 Grammar Legend";
+    else if (overallMastery >= 90) rank = "⭐ Grammar Champion";
+    else if (overallMastery >= 80) rank = "🏆 Certified Driver";
+    else if (overallMastery >= 70) rank = "🚔 Elite Driver";
+    else if (overallMastery >= 55) rank = "🚖 Advanced Driver";
+    else if (overallMastery >= 40) rank = "🚙 Skilled Driver";
+    else if (overallMastery >= 20) rank = "🚘 Rookie Driver";
 
     // Create passport
     const [pass] = await pool.execute(
