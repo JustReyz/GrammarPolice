@@ -134,3 +134,48 @@ Evaluate the player's answer. Is it grammatically correct and contextually appro
 
   throw lastError || new Error("Max retries exceeded");
 }
+
+const ASSESSMENT_SYSTEM_PROMPT = `You are a Police Academy grammar assessor for EFL learners.
+Evaluate the player's answer to the given question.
+
+Rules:
+- Score 0-100 based on grammar correctness, vocabulary use, and sentence structure.
+- Return valid JSON only, no markdown.
+- feedback: short 1-sentence evaluation (max 150 chars).
+- mistakes: array of specific error types found (e.g. ["wrong tense", "subject-verb agreement"]). Empty if none.
+
+Output format:
+{ "score": number, "feedback": string, "mistakes": string[] }`;
+
+export async function evaluateAssessment(
+  question: string,
+  answer: string,
+  category: string
+): Promise<{ score: number; feedback: string; mistakes: string[] }> {
+  const messages = [
+    { role: "system", content: ASSESSMENT_SYSTEM_PROMPT },
+    { role: "user", content: `Question: "${question}"\nPlayer answer: "${answer}"\nCategory: ${category}\n\nScore this answer 0-100 and list any grammar mistakes found.` },
+  ];
+
+  try {
+    const res = await fetch(DEEPSEEK_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY || ""}`,
+      },
+      body: JSON.stringify({ model: "deepseek-chat", messages, temperature: 0.2, max_tokens: 200 }),
+    });
+    if (!res.ok) return { score: 50, feedback: "Assessment processed.", mistakes: [] };
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content?.trim() || "";
+    const parsed = JSON.parse(text);
+    return {
+      score: Math.min(100, Math.max(0, parsed.score || 50)),
+      feedback: (parsed.feedback || "").slice(0, 150),
+      mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes : [],
+    };
+  } catch {
+    return { score: 50, feedback: "Assessment processed.", mistakes: [] };
+  }
+}

@@ -48,7 +48,7 @@ export async function evaluateAnswer(
   }
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash-lite",
+    model: "gemini-2.5-flash",
     systemInstruction: `You are a contextual grammar evaluator for EFL learners in a police checkpoint simulation.
 
 Rules:
@@ -109,4 +109,49 @@ Evaluate the player's answer. Is it grammatically correct and contextually appro
   }
 
   throw lastError || new Error("Max retries exceeded");
+}
+
+const ASSESSMENT_SYSTEM_PROMPT = `You are a Police Academy grammar assessor for EFL learners.
+Evaluate the player's answer to the given question.
+
+Rules:
+- Score 0-100 based on grammar correctness, vocabulary use, and sentence structure.
+- Return valid JSON only, no markdown.
+- feedback: short 1-sentence evaluation (max 150 chars).
+- mistakes: array of specific error types found (e.g. ["wrong tense", "subject-verb agreement"]). Empty if none.
+
+Output format:
+{ "score": number, "feedback": string, "mistakes": string[] }`;
+
+export async function evaluateAssessment(
+  question: string,
+  answer: string,
+  category: string
+): Promise<{ score: number; feedback: string; mistakes: string[] }> {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash-lite",
+    systemInstruction: ASSESSMENT_SYSTEM_PROMPT,
+  });
+
+  const prompt = `Question: "${question}"
+Player answer: "${answer}"
+Category: ${category}
+
+Score this answer 0-100 and list any grammar mistakes found.`;
+
+  try {
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.2, maxOutputTokens: 200, responseMimeType: "application/json" },
+    });
+    const text = result.response.text().trim();
+    const parsed = JSON.parse(text);
+    return {
+      score: Math.min(100, Math.max(0, parsed.score || 50)),
+      feedback: (parsed.feedback || "").slice(0, 150),
+      mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes : [],
+    };
+  } catch {
+    return { score: 50, feedback: "Assessment processed.", mistakes: [] };
+  }
 }

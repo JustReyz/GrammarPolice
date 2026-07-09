@@ -42,6 +42,11 @@ export interface GateData {
 type Screen =
   | "login"
   | "home"
+  | "mission-select"
+  | "assessment"
+  | "analysis"
+  | "passport"
+  | "personalized-journey"
   | "gate"
   | "feedback-correct"
   | "feedback-wrong"
@@ -50,9 +55,17 @@ type Screen =
   | "adaptive"
   | "summary";
 
+interface AssessmentData {
+  overallMastery: number;
+  rank: string;
+  categories: { name: string; score: number }[];
+  district: string;
+}
+
 interface AppState {
   user: UserData | null;
   screen: Screen;
+  assessmentData: AssessmentData | null;
   gates: GateData[];
   currentGateIdx: number;
   lastUserAnswer: string;
@@ -72,6 +85,7 @@ interface AppContextType extends AppState {
   logout: () => void;
   setScreen: (screen: Screen) => void;
   setLlmExplanation: (text: string) => void;
+  setAssessmentData: (data: AssessmentData) => void;
   setLlmCorrectedSentence: (text: string | null) => void;
   setLlmAdvice: (text: string) => void;
   startJourney: () => Promise<void>;
@@ -89,6 +103,7 @@ const AppContext = createContext<AppContextType | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [screen, setScreen] = useState<Screen>("login");
+  const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(null);
   const [gates, setGates] = useState<GateData[]>([]);
   const [currentGateIdx, setCurrentGateIdx] = useState(0);
   const [lastUserAnswer, setLastUserAnswer] = useState("");
@@ -124,8 +139,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setUser(data.user);
-      setScreen("home");
       resetSession();
+      // Route to mission select if no learning goal yet
+      setScreen(data.user.learning_goal ? "home" : "mission-select");
     },
     [resetSession],
   );
@@ -260,6 +276,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         screen,
+        assessmentData,
         gates,
         currentGateIdx,
         lastUserAnswer,
@@ -275,6 +292,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         setScreen,
+        setAssessmentData,
         setLlmExplanation,
         setLlmCorrectedSentence,
         setLlmAdvice,
