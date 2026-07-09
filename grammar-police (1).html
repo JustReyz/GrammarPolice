@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storyboard Grammar Police</title>
+<style>
+  :root{
+    --navy-deep:#081426;
+    --navy:#0e2242;
+    --navy-card:#14335e;
+    --navy-card-2:#1a3d6d;
+    --line:rgba(255,255,255,0.09);
+    --gold:#f5c542;
+    --gold-2:#ffdf7a;
+    --green:#2e9e52;
+    --green-dark:#1f7a3d;
+    --blue-btn:#2f6fed;
+    --blue-btn-2:#5b8dff;
+    --red:#e0455a;
+    --ink:#eef3fb;
+    --ink-dim:#9fb2cf;
+    --shadow: 0 18px 40px rgba(0,0,0,0.45);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% -10%, #163057 0%, transparent 55%),
+      radial-gradient(circle at 100% 10%, #12294c 0%, transparent 45%),
+      linear-gradient(180deg,var(--navy-deep) 0%, #060d1a 100%);
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:22px 14px 60px;
+  }
+
+  /* ===== TOP MASTHEAD ===== */
+  .masthead{
+    width:100%;
+    max-width:1040px;
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .masthead h1{
+    font-size:clamp(22px,4vw,38px);
+    letter-spacing:2px;
+    margin:0;
+    font-weight:800;
+    text-shadow:0 2px 0 rgba(0,0,0,0.3);
+  }
+  .masthead h1 .white{color:#fff;}
+  .masthead h1 .gold{color:var(--gold);}
+  .masthead .badge-star{
+    display:inline-block;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));
+    animation: spinStar 6s linear infinite;
+  }
+  @keyframes spinStar{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+  .masthead .sub{
+    margin-top:10px;
+    display:inline-block;
+    background:linear-gradient(180deg,#3cb15f,#237c3e);
+    color:#fff;
+    padding:7px 22px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.4px;
+    box-shadow:0 6px 14px rgba(35,124,62,.4);
+  }
+
+  /* ===== APP FRAME ===== */
+  .frame{
+    width:100%;
+    max-width:1040px;
+    background:linear-gradient(160deg,var(--navy) 0%, var(--navy-deep) 100%);
+    border:1px solid var(--line);
+    border-radius:22px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* top status bar */
+  .statusbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:14px 18px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .level-chip{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);
+    padding:6px 12px 6px 8px;
+    border-radius:30px;
+    font-size:12px;
+  }
+  .level-chip .shield{
+    width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-2), var(--gold) 60%, #b98a12 100%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:#5a3d05;font-weight:800;
+    box-shadow:inset 0 -2px 3px rgba(0,0,0,.25);
+  }
+  .level-chip .lv-text{line-height:1.15;}
+  .level-chip .lv-text b{display:block;font-size:12.5px;color:#fff;}
+  .level-chip .lv-text span{color:var(--ink-dim);font-size:10.5px;}
+
+  .xp-wrap{
+    flex:1;min-width:140px;max-width:220px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .xp-track{
+    flex:1;height:9px;border-radius:6px;background:rgba(255,255,255,0.08);
+    overflow:hidden;border:1px solid var(--line);
+  }
+  .xp-fill{
+    height:100%;border-radius:6px;
+    background:linear-gradient(90deg,#ffe27a,var(--gold));
+    transition:width .6s cubic-bezier(.4,1.4,.4,1);
+  }
+  .xp-num{font-size:10.5px;color:var(--ink-dim);white-space:nowrap;}
+
+  .stat-pills{display:flex;gap:8px;flex-wrap:wrap;}
+  .pill{
+    display:flex;align-items:center;gap:5px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);
+    padding:5px 10px;border-radius:20px;font-size:12.5px;font-weight:600;
+    transition:transform .25s;
+  }
+  .pill.pulse{animation:pillPulse .5s;}
+  @keyframes pillPulse{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.25);}
+    100%{transform:scale(1)}
+  }
+  .pill .ic{font-size:14px;}
+  .pill.star .ic{color:var(--gold);}
+  .pill.coin .ic{color:#ffd54f;}
+  .pill.heart .ic{color:#ff5d6c;}
+
+  /* body area with optional sidebar */
+  .body-area{display:flex;min-height:520px;}
+  .sidebar{
+    width:150px;
+    background:rgba(0,0,0,0.18);
+    border-right:1px solid var(--line);
+    padding:16px 10px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .side-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 10px;border-radius:10px;
+    color:var(--ink-dim);font-size:12.5px;font-weight:600;
+    cursor:default;
+  }
+  .side-item .dot{width:20px;text-align:center;}
+  .side-item.active{
+    background:linear-gradient(90deg, rgba(47,111,237,.35), rgba(47,111,237,.08));
+    color:#fff;
+    box-shadow:inset 3px 0 0 var(--blue-btn-2);
+  }
+
+  .stage{
+    flex:1;
+    padding:26px 26px 30px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* ===== SCENE (gate checkpoint backdrop) ===== */
+  .scene{
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    min-height:300px;
+    background:linear-gradient(180deg,#2a5c8f 0%, #3f7fae 38%, #4d9a63 55%, #3a7a4d 100%);
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 10px 26px rgba(0,0,0,.35);
+    margin-bottom:18px;
+  }
+  .scene .hill{
+    position:absolute;bottom:36%;width:220px;height:220px;border-radius:50%;
+    background:#3a7a4d;opacity:.7;
+  }
+  .scene .hill.h1{left:-60px;bottom:32%;}
+  .scene .hill.h2{right:-70px;bottom:34%;background:#357048;}
+  .scene .road{
+    position:absolute;bottom:0;left:0;right:0;height:38%;
+    background:linear-gradient(180deg,#5b5f66,#3d3f44);
+  }
+  .scene .lane{
+    position:absolute;bottom:14%;left:0;right:0;height:6px;
+    background-image:repeating-linear-gradient(90deg,#ffd54f 0 34px, transparent 34px 64px);
+    animation:laneMove 1.4s linear infinite;
+    opacity:.9;
+  }
+  @keyframes laneMove{ from{background-position:0 0} to{background-position:-96px 0} }
+
+  .gate-tower{
+    position:absolute;bottom:16%;width:26px;height:34%;
+    background:linear-gradient(180deg,#cfa93a,#a5811f);
+    border-radius:4px;
+  }
+  .gate-tower.left{left:14%;}
+  .gate-tower.right{right:14%;}
+  .gate-tower::before{
+    content:'';position:absolute;top:-14px;left:-9px;right:-9px;height:16px;
+    background:linear-gradient(180deg,#f5c542,#c79c26);border-radius:4px;
+  }
+  .gate-sign{
+    position:absolute;top:6%;left:50%;transform:translateX(-50%);
+    background:linear-gradient(160deg,#144a2a,#0d2e19);
+    border:2px solid var(--gold);
+    color:var(--gold);
+    padding:8px 22px;border-radius:12px;
+    font-weight:800;font-size:14px;letter-spacing:1px;
+    text-align:center;box-shadow:0 8px 18px rgba(0,0,0,.35);
+  }
+  .gate-sign small{display:block;font-size:9px;color:#bfe8cd;letter-spacing:2px;font-weight:600;}
+
+  .barrier{
+    position:absolute;bottom:24.5%;left:50%;transform-origin:left center;
+    transform:translateX(-50%) rotate(0deg);
+    width:170px;height:9px;
+    background:repeating-linear-gradient(90deg,#e5455a 0 18px, #fff 18px 36px);
+    border-radius:5px;
+    box-shadow:0 3px 6px rgba(0,0,0,.4);
+    transition:transform .9s cubic-bezier(.5,-0.2,.4,1.3);
+    z-index:5;
+  }
+  .barrier.open{ transform:translateX(-50%) translateY(-46px) rotate(-72deg); }
+
+  .car{
+    position:absolute;bottom:6%;left:14%;
+    width:96px;height:46px;
+    animation:carIdle 2.4s ease-in-out infinite;
+  }
+  @keyframes carIdle{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+  .car .body{
+    position:absolute;bottom:10px;left:0;right:0;height:26px;
+    background:linear-gradient(180deg,#3a6fd8,#1e4bb0);
+    border-radius:12px 12px 6px 6px;
+  }
+  .car .cabin{
+    position:absolute;bottom:24px;left:16px;right:22px;height:18px;
+    background:linear-gradient(180deg,#5a8cf0,#3a6fd8);
+    border-radius:10px 10px 3px 3px;
+  }
+  .car .wheel{
+    position:absolute;bottom:2px;width:16px;height:16px;border-radius:50%;
+    background:#111;border:3px solid #333;
+  }
+  .car .wheel.l{left:10px;} .car .wheel.r{right:10px;}
+
+  .officer{
+    position:absolute;bottom:5%;
+    width:64px;
+  }
+  .officer.right{right:8%;}
+  .officer.left{left:32%;}
+
+  /* ===== ROBOT / OFFICER (css built) ===== */
+  .robot{
+    position:relative;width:64px;height:92px;
+    animation:bob 2.6s ease-in-out infinite;
+    filter:drop-shadow(0 6px 8px rgba(0,0,0,.35));
+  }
+  .robot.small{width:48px;height:70px;}
+  .robot.large{width:120px;height:172px;}
+  @keyframes bob{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  .robot .cap{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:70%;height:26%;
+    background:linear-gradient(180deg,#1c3a63,#102544);
+    border-radius:50% 50% 10px 10px / 60% 60% 10px 10px;
+    border-bottom:3px solid var(--gold);
+  }
+  .robot .cap::after{
+    content:'';position:absolute;left:50%;top:18%;transform:translateX(-50%);
+    width:22%;height:22%;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 6px var(--gold);
+  }
+  .robot .head{
+    position:absolute;top:22%;left:50%;transform:translateX(-50%);
+    width:78%;height:38%;
+    background:linear-gradient(160deg,#e8edf6,#c7d2e4);
+    border-radius:22px;
+    border:2px solid #a9b7cf;
+  }
+  .robot .eye{
+    position:absolute;top:38%;width:22%;height:22%;border-radius:50%;
+    background:#0d1f38;
+  }
+  .robot .eye::after{
+    content:'';position:absolute;inset:22%;border-radius:50%;
+    background:#4fd7ff;box-shadow:0 0 8px #4fd7ff;
+    animation:blinkGlow 3.4s infinite;
+  }
+  @keyframes blinkGlow{ 0%,92%,100%{opacity:1} 95%{opacity:.15} }
+  .robot .eye.l{left:16%;} .robot .eye.r{right:16%;}
+  .robot .body{
+    position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+    width:88%;height:42%;
+    background:linear-gradient(160deg,#3760a8,#254a86);
+    border-radius:16px 16px 10px 10px;
+    border:2px solid #1c3a63;
+  }
+  .robot .badge{
+    position:absolute;bottom:38%;left:50%;transform:translateX(-50%);
+    width:26%;height:16%;border-radius:4px;
+    background:var(--gold);
+  }
+  .robot .arm{
+    position:absolute;bottom:20%;width:14%;height:34%;
+    background:#254a86;border-radius:8px;
+  }
+  .robot .arm.l{left:2%;transform:rotate(12deg);}
+  .robot .arm.r{right:2%;transform:rotate(-18deg);animation:wave 1.6s ease-in-out infinite;}
+  @keyframes wave{ 0%,100%{transform:rotate(-18deg)} 50%{transform:rotate(-36deg)} }
+
+  /* speech bubble */
+  .bubble{
+    position:relative;
+    background:#fff;
+    color:#1a2b45;
+    border-radius:16px;
+    padding:12px 16px;
+    font-size:13.5px;
+    line-height:1.4;
+    font-weight:600;
+    max-width:260px;
+    box-shadow:0 8px 20px rgba(0,0,0,.3);
+    animation:popIn .35s ease;
+  }
+  .bubble::after{
+    content:'';position:absolute;bottom:-8px;left:26px;
+    border-width:8px 8px 0 0;border-style:solid;
+    border-color:#fff transparent transparent transparent;
+  }
+  @keyframes popIn{ from{opacity:0;transform:translateY(8px) scale(.94)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+  .officer-bubble{
+    position:absolute;top:4%;right:2%;width:230px;
+  }
+
+  /* ===== SCREEN TRANSITIONS ===== */
+  .screen{animation:slideFade .45s ease;}
+  @keyframes slideFade{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  /* ===== HOME ===== */
+  .home-hero{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:280px;text-align:center;position:relative;
+  }
+  .home-hero .gp-badge{
+    font-size:clamp(30px,5vw,52px);
+    font-weight:900;
+    letter-spacing:1px;
+    color:var(--gold);
+    text-shadow:0 4px 0 #6b4e0c, 0 8px 16px rgba(0,0,0,.4);
+    background:linear-gradient(160deg,#123a24,#0b2818);
+    border:3px solid var(--gold);
+    padding:18px 46px;border-radius:16px;
+    display:inline-flex;flex-direction:column;line-height:1.05;
+    box-shadow:0 14px 30px rgba(0,0,0,.4);
+    animation:heroPop .6s ease;
+  }
+  @keyframes heroPop{ from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+  .home-hero .gp-badge small{
+    font-size:12px;color:#bfe8cd;letter-spacing:3px;font-weight:700;margin-bottom:4px;
+  }
+  .home-cta{
+    margin-top:22px;
+    background:linear-gradient(180deg,#3cb15f,#1f7a3d);
+    color:#fff;border:none;
+    padding:14px 40px;border-radius:14px;
+    font-size:15px;font-weight:800;letter-spacing:.5px;
+    cursor:pointer;
+    box-shadow:0 10px 22px rgba(31,122,61,.45);
+    transition:transform .18s, box-shadow .18s;
+  }
+  .home-cta:hover{transform:translateY(-3px);box-shadow:0 16px 28px rgba(31,122,61,.55);}
+  .home-cta:active{transform:translateY(0);}
+
+  /* ===== CARDS / DIALOG ===== */
+  .card{
+    background:var(--navy-card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 10px 22px rgba(0,0,0,.28);
+  }
+  .row{display:flex;gap:18px;flex-wrap:wrap;}
+  .col{flex:1;min-width:240px;}
+
+  .answer-box{
+    display:flex;gap:10px;margin-top:14px;
+  }
+  .answer-box input{
+    flex:1;
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--line);
+    color:#fff;
+    padding:12px 14px;border-radius:10px;
+    font-size:14px;
+  }
+  .answer-box input::placeholder{color:var(--ink-dim);}
+  .btn-submit{
+    background:linear-gradient(180deg,var(--blue-btn-2),var(--blue-btn));
+    color:#fff;border:none;padding:0 22px;border-radius:10px;
+    font-weight:700;cursor:pointer;font-size:14px;
+    transition:transform .15s;
+  }
+  .btn-submit:hover{transform:translateY(-2px);}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+  .tag-answer{
+    background:rgba(255,255,255,0.06);
+    display:inline-block;padding:6px 14px;border-radius:20px;
+    font-size:12px;color:var(--ink-dim);margin-bottom:8px;
+  }
+
+  /* feedback screens */
+  .fb-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .fb-icon{
+    width:42px;height:42px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;color:#fff;
+    animation:popIn .4s ease;
+  }
+  .fb-icon.ok{background:linear-gradient(180deg,#3cb15f,#1f7a3d);box-shadow:0 0 0 6px rgba(60,177,95,.18);}
+  .fb-icon.bad{background:linear-gradient(180deg,#ef5c6d,#c8283b);box-shadow:0 0 0 6px rgba(239,92,109,.18);}
+  .fb-title{font-size:16.5px;font-weight:800;}
+  .fb-sub{font-size:12.5px;color:var(--ink-dim);margin-top:2px;}
+
+  .explain-box{
+    background:rgba(255,255,255,0.05);
+    border-left:3px solid var(--gold);
+    border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;line-height:1.5;color:var(--ink-dim);
+  }
+  .your-answer-box{
+    background:rgba(255,255,255,.04);
+    border-radius:8px;padding:10px 14px;margin-top:6px;font-size:13.5px;
+  }
+  .your-answer-box b{color:#fff;}
+  .fb-wrong-box{
+    background:rgba(224,69,90,.12);
+    border:1px solid rgba(224,69,90,.4);
+    border-radius:8px;padding:10px 14px;margin-top:6px;font-size:13.5px;
+  }
+
+  .rewards-card{
+    background:linear-gradient(160deg,#173a29,#0e2419);
+    border:1px solid rgba(60,177,95,.35);
+    border-radius:16px;padding:18px;min-width:190px;
+  }
+  .rewards-card h4{margin:0 0 12px;font-size:13px;letter-spacing:.5px;color:#cfe9d8;}
+  .reward-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-weight:700;font-size:14px;}
+  .reward-item .r-ic{
+    width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:15px;
+    background:rgba(255,255,255,.08);
+  }
+
+  .btn-primary{
+    width:100%;margin-top:10px;
+    background:linear-gradient(180deg,#3cb15f,#1f7a3d);
+    color:#fff;border:none;padding:12px;border-radius:10px;
+    font-weight:800;cursor:pointer;font-size:13.5px;
+    transition:transform .15s;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-secondary{
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--line);color:#fff;
+    padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;
+  }
+
+  /* remedial */
+  .opt-grid{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;}
+  .opt-btn{
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--line);
+    color:#fff;padding:10px 18px;border-radius:10px;
+    font-size:13.5px;font-weight:600;cursor:pointer;
+    transition:.15s;
+  }
+  .opt-btn:hover{background:rgba(255,255,255,.12);transform:translateY(-2px);}
+  .opt-btn.correct{background:linear-gradient(180deg,#3cb15f,#1f7a3d);border-color:transparent;}
+  .opt-btn.wrong{background:linear-gradient(180deg,#ef5c6d,#c8283b);border-color:transparent;}
+  .notice-box{
+    background:rgba(245,197,66,.12);
+    border:1px solid rgba(245,197,66,.4);
+    color:var(--gold-2);
+    padding:10px 14px;border-radius:8px;font-size:12.5px;margin-top:12px;
+  }
+
+  /* challenge (scramble/correction) */
+  .challenge-card{
+    background:var(--navy-card);border:1px solid var(--line);
+    border-radius:16px;padding:18px;
+  }
+  .challenge-card h4{margin:0 0 4px;font-size:14px;letter-spacing:.4px;}
+  .challenge-card p.desc{margin:0 0 12px;font-size:12px;color:var(--ink-dim);}
+  .tiles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .tile{
+    background:rgba(255,255,255,.08);border:1px solid var(--line);
+    padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;
+    transition:.15s;
+  }
+  .tile:hover{background:rgba(255,255,255,.16);}
+  .tile.used{opacity:.25;pointer-events:none;}
+  .sentence-target{
+    background:rgba(224,69,90,.1);border:1px solid rgba(224,69,90,.35);
+    padding:10px 14px;border-radius:8px;font-weight:700;font-size:13.5px;margin-bottom:10px;
+  }
+  .built-line{
+    min-height:42px;background:rgba(255,255,255,.05);border:1px dashed var(--line);
+    border-radius:8px;padding:8px 12px;font-size:13.5px;margin-bottom:10px;color:#fff;
+  }
+
+  /* AI analyzing */
+  .mistake-list{list-style:none;margin:10px 0;padding:0;}
+  .mistake-list li{
+    display:flex;justify-content:space-between;
+    padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);
+    margin-bottom:6px;font-size:13px;
+  }
+  .mistake-list b{color:var(--gold-2);}
+  .thinking-dots span{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--gold);margin:0 2px;animation:tdots 1.2s infinite;
+  }
+  .thinking-dots span:nth-child(2){animation-delay:.2s;}
+  .thinking-dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes tdots{ 0%,80%,100%{opacity:.25;transform:translateY(0)} 40%{opacity:1;transform:translateY(-3px)} }
+
+  /* adaptive difficulty */
+  .progress-card{
+    background:var(--navy-card);border:1px solid var(--line);border-radius:16px;padding:18px;
+  }
+  .progress-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px dashed var(--line);}
+  .progress-row:last-child{border-bottom:none;}
+  .progress-row b{color:#fff;}
+  .level-shield{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:6px;
+  }
+  .level-shield .shield-big{
+    width:88px;height:96px;
+    background:radial-gradient(circle at 35% 25%, var(--gold-2), var(--gold) 55%, #a97e11 100%);
+    clip-path:polygon(50% 0%,100% 15%,100% 60%,50% 100%,0% 60%,0% 15%);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:11px;color:#5a3d05;text-align:center;line-height:1.2;
+    animation:shieldPop .6s ease;
+    box-shadow:0 10px 20px rgba(0,0,0,.35);
+  }
+  @keyframes shieldPop{ 0%{transform:scale(0) rotate(-20deg);opacity:0;} 70%{transform:scale(1.15) rotate(4deg);} 100%{transform:scale(1) rotate(0);opacity:1;} }
+  .banner-note{
+    text-align:center;background:rgba(245,197,66,.12);border:1px solid rgba(245,197,66,.4);
+    color:var(--gold-2);padding:10px;border-radius:10px;font-size:13px;font-weight:600;margin-top:16px;
+  }
+  .next-list{list-style:none;margin:8px 0 0;padding:0;font-size:13px;}
+  .next-list li{padding:5px 0;color:#cfe9d8;}
+  .next-list li::before{content:'✓ ';color:#3cb15f;font-weight:800;}
+
+  /* summary */
+  .summary-card{background:var(--navy-card);border:1px solid var(--line);border-radius:16px;padding:20px;}
+  .summary-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13.5px;border-bottom:1px dashed var(--line);}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-row b{color:var(--gold-2);}
+
+  footer.credit{
+    max-width:1040px;width:100%;text-align:center;margin-top:16px;
+    font-size:11.5px;color:var(--ink-dim);
+  }
+
+  @media (max-width:720px){
+    .sidebar{display:none;}
+    .stage{padding:18px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1><span class="badge-star">🛡️</span> <span class="white">STORYBOARD</span> <span class="gold">GRAMMAR POLICE</span> <span class="badge-star">🛡️</span></h1>
+  <div class="sub">Simulasi Percakapan • Evaluasi Kontekstual • Adaptive Learning berbasis AI</div>
+</div>
+
+<div class="frame">
+  <div class="statusbar" id="statusbar"></div>
+  <div class="body-area">
+    <div class="sidebar" id="sidebar">
+      <div class="side-item active"><span class="dot">🧭</span> Journey</div>
+      <div class="side-item"><span class="dot">🚗</span> Garage</div>
+      <div class="side-item"><span class="dot">🏆</span> Achievements</div>
+      <div class="side-item"><span class="dot">🎒</span> Backpack</div>
+      <div class="side-item"><span class="dot">⚙️</span> Settings</div>
+    </div>
+    <div class="stage" id="stage"></div>
+  </div>
+</div>
+
+<footer class="credit">Prototype interaktif berdasarkan storyboard 9-panel "Grammar Police" — alur & logika if/else berjalan penuh di browser.</footer>
+
+<script>
+/* ===================== STATE ===================== */
+const state = {
+  level: 3,
+  xp: 450, xpMax: 900,
+  stars: 210,
+  coins: 860,
+  hearts: 3,
+  gatesCleared: 0,
+  gatesTotal: 4,
+  correctFirstTry: 0,
+  attempts: 0,
+  streak: 5,
+  mistakes: { tense: 0, agreement: 0, preposition: 0 },
+  currentGateIdx: 0,
+  lastWrongUser: '',
+  scrambleBuilt: [],
+  scrambleUsed: []
+};
+
+/* ===================== GATE DATA ===================== */
+const gates = [
+  {
+    id:1, type:'sentence', title:'PRESENT TENSE GATE',
+    npc:'Good morning, Driver! Tell me: where are you going today?',
+    check:(ans)=>/am\s*going|i'?m\s*going/i.test(ans),
+    correctExplain:'Great! You used the present continuous "am going" to talk about your plan for the near future.',
+    wrongExplain:(ans)=>`You used "${firstWord(ans)}" (simple present), but the correct form is "am going" because you are talking about your plan for the near future.`,
+    remedial:{ prompt:'I ______ (go) to school tomorrow.', options:['go','goes','am going','is going'], correct:'am going' },
+    category:'tense'
+  },
+  {
+    id:2, type:'scramble', title:'WORD SCRAMBLE GATE',
+    npc:'Nice! Now tell me about your plan for the afternoon.',
+    prefix:'I', words:['am','going','to','the','library'],
+    correct:'am going to the library',
+    correctExplain:'Correct! "am going to the library" — present continuous for a near-future plan.',
+    category:'tense'
+  },
+  {
+    id:3, type:'correction', title:'CORRECTION MODE GATE',
+    npc:'One of our officers wrote this note wrong. Can you fix it?',
+    sentence:'She are watching a movie now.',
+    correct:'she is watching a movie now',
+    correctExplain:'Correct! "She" is singular, so it takes "is", not "are" — that\'s subject-verb agreement.',
+    category:'agreement'
+  },
+  {
+    id:4, type:'sentence', title:'PREPOSITION GATE',
+    npc:'Last checkpoint, Driver! What time do you usually leave home?',
+    check:(ans)=>/\bat\s*(7|seven)\b/i.test(ans),
+    correctExplain:'Correct! We use "at" with a specific clock time, like "at 7 AM".',
+    wrongExplain:()=>'Remember: use "at" with an exact clock time (at 7 AM), "in" with parts of the day (in the morning), and "on" with days (on Monday).',
+    remedial:{ prompt:'I leave home ______ 7 AM.', options:['in','on','at','for'], correct:'at' },
+    category:'preposition'
+  }
+];
+
+function firstWord(ans){
+  const m = ans.trim().toLowerCase().match(/^i\s+(\w+)/);
+  return m ? m[1] : (ans.split(' ')[0]||'go');
+}
+function norm(s){ return s.toLowerCase().replace(/[.!?]/g,'').replace(/\s+/g,' ').trim(); }
+
+/* ===================== RENDER: STATUS BAR ===================== */
+function renderStatusBar(pulseKey){
+  const xpPct = Math.min(100, Math.round(state.xp/state.xpMax*100));
+  document.getElementById('statusbar').innerHTML = `
+    <div class="level-chip">
+      <div class="shield">🛡️</div>
+      <div class="lv-text"><b>Level ${state.level}</b><span>Explorer</span></div>
+    </div>
+    <div class="xp-wrap">
+      <div class="xp-track"><div class="xp-fill" style="width:${xpPct}%"></div></div>
+      <div class="xp-num">${state.xp}/${state.xpMax}</div>
+    </div>
+    <div class="stat-pills">
+      <div class="pill star ${pulseKey==='star'?'pulse':''}"><span class="ic">⭐</span>${state.stars}</div>
+      <div class="pill coin ${pulseKey==='coin'?'pulse':''}"><span class="ic">🪙</span>${state.coins}</div>
+      <div class="pill heart ${pulseKey==='heart'?'pulse':''}"><span class="ic">❤️</span>${state.hearts}</div>
+    </div>
+  `;
+}
+
+/* ===================== ROBOT COMPONENT ===================== */
+function robotHtml(size=''){
+  return `
+  <div class="robot ${size}">
+    <div class="cap"></div>
+    <div class="head"><div class="eye l"></div><div class="eye r"></div></div>
+    <div class="arm l"></div>
+    <div class="arm r"></div>
+    <div class="body"><div class="badge"></div></div>
+  </div>`;
+}
+
+/* ===================== SCENE COMPONENT ===================== */
+function sceneHtml({gateOpen=false, title='GRAMMAR POLICE', showBubble=null}={}){
+  return `
+  <div class="scene">
+    <div class="hill h1"></div><div class="hill h2"></div>
+    <div class="gate-sign"><small>PRESENT TENSE</small>${title}</div>
+    <div class="road"></div><div class="lane"></div>
+    <div class="gate-tower left"></div><div class="gate-tower right"></div>
+    <div class="barrier ${gateOpen?'open':''}"></div>
+    <div class="car">
+      <div class="cabin"></div><div class="body"></div>
+      <div class="wheel l"></div><div class="wheel r"></div>
+    </div>
+    <div class="officer right">${robotHtml('small')}</div>
+    ${showBubble ? `<div class="bubble officer-bubble">${showBubble}</div>` : ''}
+  </div>`;
+}
+
+/* ===================== SCREEN: HOME ===================== */
+function renderHome(){
+  document.getElementById('sidebar').style.display='flex';
+  renderStatusBar();
+  document.getElementById('stage').innerHTML = `
+    <div class="screen home-hero">
+      ${sceneHtml({title:'', showBubble:null})}
+      <div class="gp-badge" style="margin-top:-100px;">
+        <small>★ ★ ★</small>GRAMMAR<br>POLICE
+      </div>
+      <p style="color:var(--ink-dim);font-size:13px;max-width:420px;margin-top:14px;">
+        Ready to improve your grammar? Let's hit the road — setiap gerbang menguji satu aturan tata bahasa lewat percakapan nyata.
+      </p>
+      <button class="home-cta" id="btnStart">Start Journey 🚗</button>
+    </div>
+  `;
+  document.getElementById('btnStart').onclick = ()=>{
+    state.currentGateIdx = 0;
+    goToGate(0);
+  };
+}
+
+/* ===================== ROUTER: GO TO GATE ===================== */
+function goToGate(idx){
+  if(idx >= gates.length){
+    renderAIAnalyzing();
+    return;
+  }
+  const g = gates[idx];
+  if(g.type==='sentence') renderSentenceGate(g);
+  else if(g.type==='scramble') renderScrambleGate(g);
+  else if(g.type==='correction') renderCorrectionGate(g);
+}
+
+/* ===================== SCREEN: SENTENCE GATE ===================== */
+function renderSentenceGate(g){
+  document.getElementById('sidebar').style.display='none';
+  renderStatusBar();
+  document.getElementById('stage').innerHTML = `
+    <div class="screen">
+      ${sceneHtml({title:g.title.replace(' GATE',''), showBubble:g.npc})}
+      <div class="card">
+        <span class="tag-answer">Your answer</span>
+        <div class="answer-box">
+          <input id="gateInput" type="text" placeholder="Type your sentence in the box below." autocomplete="off">
+          <button class="btn-submit" id="gateSubmit">Submit ➤</button>
+        </div>
+      </div>
+    </div>
+  `;
+  const input = document.getElementById('gateInput');
+  const submit = ()=>{
+    const val = input.value.trim();
+    if(!val) return;
+    handleSentenceAnswer(g, val);
+  };
+  document.getElementById('gateSubmit').onclick = submit;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
+  input.focus();
+}
+
+function handleSentenceAnswer(g, val){
+  state.attempts++;
+  const ok = g.check(val);
+  if(ok){
+    state.correctFirstTry++;
+    state.streak++;
+    animateGateOpenThen(()=> renderFeedbackCorrect(g, val));
+  }else{
+    state.streak = 0;
+    state.hearts = Math.max(0, state.hearts - 1);
+    state.mistakes[g.category]++;
+    state.lastWrongUser = val;
+    renderFeedbackWrong(g, val);
+  }
+}
+
+function animateGateOpenThen(cb){
+  const barrier = document.querySelector('.barrier');
+  if(barrier) barrier.classList.add('open');
+  setTimeout(cb, 550);
+}
+
+/* ===================== SCREEN: FEEDBACK CORRECT ===================== */
+function renderFeedbackCorrect(g, userAnswer){
+  state.xp = Math.min(state.xpMax, state.xp + 20);
+  state.coins += 10;
+  renderStatusBar('coin');
+  document.getElementById('stage').innerHTML = `
+    <div class="screen row">
+      <div class="col card">
+        <div class="fb-head">
+          <div class="fb-icon ok">✓</div>
+          <div><div class="fb-title">Great job!</div><div class="fb-sub">Your sentence is correct.</div></div>
+        </div>
+        <span class="tag-answer">Your Answer</span>
+        <div class="your-answer-box"><b>${escapeHtml(userAnswer)}</b></div>
+        <div style="margin-top:14px;font-weight:700;font-size:13px;color:var(--gold-2);">Explanation</div>
+        <div class="explain-box">${g.correctExplain}</div>
+      </div>
+      <div class="rewards-card">
+        <h4>REWARDS</h4>
+        <div class="reward-item"><span class="r-ic">⭐</span> +20 XP</div>
+        <div class="reward-item"><span class="r-ic">🪙</span> +10 Coins</div>
+        <button class="btn-primary" id="btnNextGate">Next Gate ›</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnNextGate').onclick = ()=>{
+    state.gatesCleared++;
+    state.currentGateIdx++;
+    goToGate(state.currentGateIdx);
+  };
+}
+
+/* ===================== SCREEN: FEEDBACK WRONG ===================== */
+function renderFeedbackWrong(g, userAnswer){
+  renderStatusBar('heart');
+  document.getElementById('stage').innerHTML = `
+    <div class="screen card" style="max-width:640px;">
+      <div class="fb-head">
+        <div class="fb-icon bad">✕</div>
+        <div><div class="fb-title">Oops! Not quite.</div><div class="fb-sub">There is a mistake in your sentence.</div></div>
+      </div>
+      <span class="tag-answer">Your Answer</span>
+      <div class="fb-wrong-box">${escapeHtml(userAnswer)}</div>
+      <div style="margin-top:14px;font-weight:700;font-size:13px;color:var(--gold-2);">Explanation</div>
+      <div class="explain-box">${g.wrongExplain ? g.wrongExplain(userAnswer) : 'Take another look at the grammar rule for this gate.'}</div>
+      <button class="btn-primary" id="btnRemedial" style="max-width:240px;">Practice a bit more →</button>
+    </div>
+  `;
+  document.getElementById('btnRemedial').onclick = ()=> renderRemedial(g);
+}
+
+/* ===================== SCREEN: REMEDIAL (adaptive) ===================== */
+function renderRemedial(g){
+  if(!g.remedial){ // no remedial defined, just retry same gate
+    goToGate(state.currentGateIdx);
+    return;
+  }
+  renderStatusBar();
+  const r = g.remedial;
+  document.getElementById('stage').innerHTML = `
+    <div class="screen card" style="max-width:680px;">
+      <div class="fb-title" style="margin-bottom:2px;">Let's practice a bit more!</div>
+      <div class="fb-sub" style="margin-bottom:14px;">Complete the sentence using the correct form.</div>
+      <div class="your-answer-box" style="font-size:15px;">${r.prompt}</div>
+      <div class="opt-grid" id="optGrid">
+        ${r.options.map(o=>`<button class="opt-btn" data-val="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join('')}
+      </div>
+      <div class="notice-box" id="remedialNotice">Mode remedial muncul otomatis berdasarkan kesalahanmu. Ayo kuasai materinya sebelum lanjut ke gerbang berikutnya!</div>
+    </div>
+  `;
+  const buttons = [...document.querySelectorAll('#optGrid .opt-btn')];
+  buttons.forEach(btn=>{
+    btn.onclick = ()=>{
+      buttons.forEach(b=>b.disabled=true);
+      const chosen = btn.dataset.val;
+      if(norm(chosen) === norm(r.correct)){
+        btn.classList.add('correct');
+        document.getElementById('remedialNotice').textContent = 'Correct! Materi dikuasai — melanjutkan ke gerbang berikutnya...';
+        setTimeout(()=>{
+          state.gatesCleared++;
+          state.currentGateIdx++;
+          goToGate(state.currentGateIdx);
+        }, 900);
+      }else{
+        btn.classList.add('wrong');
+        buttons.find(b=>norm(b.dataset.val)===norm(r.correct)).classList.add('correct');
+        document.getElementById('remedialNotice').textContent = 'Belum tepat — perhatikan jawaban yang benar di atas, lalu lanjut ke gerbang berikutnya.';
+        setTimeout(()=>{
+          state.gatesCleared++;
+          state.currentGateIdx++;
+          goToGate(state.currentGateIdx);
+        }, 1300);
+      }
+    };
+  });
+}
+
+/* ===================== SCREEN: SCRAMBLE GATE ===================== */
+function renderScrambleGate(g){
+  document.getElementById('sidebar').style.display='none';
+  renderStatusBar();
+  state.scrambleBuilt = [];
+  state.scrambleUsed = new Array(g.words.length).fill(false);
+  document.getElementById('stage').innerHTML = `
+    <div class="screen row">
+      <div class="col challenge-card">
+        <h4>WORD SCRAMBLE</h4>
+        <p class="desc">Arrange the words below to make a correct sentence.</p>
+        <div class="built-line" id="builtLine">${g.prefix} <span id="builtWords" style="color:var(--gold-2);"></span></div>
+        <div class="tiles" id="tiles">
+          ${g.words.map((w,i)=>`<button class="tile" data-i="${i}">${w}</button>`).join('')}
+        </div>
+        <button class="btn-submit" id="scrambleSubmit">Submit</button>
+        <button class="btn-secondary" id="scrambleReset" style="margin-left:8px;">Reset</button>
+      </div>
+      <div class="col" style="max-width:240px;display:flex;align-items:center;justify-content:center;">
+        ${robotHtml('large')}
+      </div>
+    </div>
+  `;
+  const tiles = [...document.querySelectorAll('#tiles .tile')];
+  const builtWordsEl = document.getElementById('builtWords');
+  tiles.forEach(t=>{
+    t.onclick = ()=>{
+      const i = +t.dataset.i;
+      if(state.scrambleUsed[i]) return;
+      state.scrambleUsed[i]=true;
+      t.classList.add('used');
+      state.scrambleBuilt.push(g.words[i]);
+      builtWordsEl.textContent = state.scrambleBuilt.join(' ');
+    };
+  });
+  document.getElementById('scrambleReset').onclick = ()=> renderScrambleGate(g);
+  document.getElementById('scrambleSubmit').onclick = ()=>{
+    const built = (g.prefix + ' ' + state.scrambleBuilt.join(' ')).trim();
+    state.attempts++;
+    if(norm(built) === norm(g.prefix + ' ' + g.correct)){
+      state.correctFirstTry++; state.streak++;
+      renderFeedbackCorrect(g, built);
+    }else{
+      state.streak = 0;
+      state.hearts = Math.max(0, state.hearts-1);
+      state.mistakes[g.category]++;
+      g.wrongExplain = ()=> `Not quite — the correct order is "${g.prefix} ${g.correct}".`;
+      renderFeedbackWrong(g, built);
+    }
+  };
+}
+
+/* ===================== SCREEN: CORRECTION GATE ===================== */
+function renderCorrectionGate(g){
+  document.getElementById('sidebar').style.display='none';
+  renderStatusBar();
+  document.getElementById('stage').innerHTML = `
+    <div class="screen row">
+      <div class="col challenge-card">
+        <h4>CORRECTION MODE</h4>
+        <p class="desc">Find and correct the mistake in the sentence.</p>
+        <div class="sentence-target">${g.sentence}</div>
+        <div class="answer-box">
+          <input id="corrInput" type="text" placeholder="Type the correct sentence here...">
+          <button class="btn-submit" id="corrSubmit">Submit</button>
+        </div>
+      </div>
+      <div class="col" style="max-width:240px;display:flex;align-items:center;justify-content:center;">
+        ${robotHtml('large')}
+      </div>
+    </div>
+  `;
+  const input = document.getElementById('corrInput');
+  const submit = ()=>{
+    const val = input.value.trim();
+    if(!val) return;
+    state.attempts++;
+    if(norm(val) === norm(g.correct)){
+      state.correctFirstTry++; state.streak++;
+      renderFeedbackCorrect(g, val);
+    }else{
+      state.streak = 0;
+      state.hearts = Math.max(0, state.hearts-1);
+      state.mistakes[g.category]++;
+      g.wrongExplain = ()=> `Close — remember "She" is singular, so the verb must be "is": "${capitalize(g.correct)}".`;
+      renderFeedbackWrong(g, val);
+    }
+  };
+  document.getElementById('corrSubmit').onclick = submit;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
+  input.focus();
+}
+
+function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1)+'.'; }
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ===================== SCREEN: AI ANALYZING ===================== */
+function renderAIAnalyzing(){
+  document.getElementById('sidebar').style.display='none';
+  renderStatusBar();
+  document.getElementById('stage').innerHTML = `
+    <div class="screen row">
+      <div class="col" style="max-width:220px;text-align:center;">
+        ${robotHtml('large')}
+        <div class="bubble" style="margin-top:10px;">AI Grammar Police analyzing your performance<span class="thinking-dots"><span></span><span></span><span></span></span></div>
+      </div>
+      <div class="col card">
+        <h4 style="margin:0 0 10px;">Common Mistakes Detected</h4>
+        <ul class="mistake-list" id="mistakeList"></ul>
+        <div class="notice-box">Don't worry! We will adjust the next challenges for you.</div>
+      </div>
+    </div>
+  `;
+  const list = document.getElementById('mistakeList');
+  const entries = [
+    ['Verb tense (present continuous)', state.mistakes.tense],
+    ['Subject-verb agreement', state.mistakes.agreement],
+    ['Preposition usage', state.mistakes.preposition],
+  ].filter(e=>e[1] > 0);
+  if(entries.length===0){
+    list.innerHTML = `<li>No major mistakes detected <b>🎉</b></li>`;
+  }else{
+    list.innerHTML = entries.map(([label,count])=>`<li>${label} <b>${count}x</b></li>`).join('');
+  }
+  setTimeout(renderAdaptiveDifficulty, 2200);
+}
+
+/* ===================== SCREEN: ADAPTIVE DIFFICULTY ===================== */
+function renderAdaptiveDifficulty(){
+  renderStatusBar();
+  const accuracy = state.attempts ? Math.round(state.correctFirstTry/state.attempts*100) : 100;
+  const xpEarned = state.gatesCleared * 20;
+  // adapt level if accuracy is strong
+  if(accuracy >= 75 && state.level < 9){ state.level += 1; }
+
+  document.getElementById('stage').innerHTML = `
+    <div class="screen row">
+      <div class="col progress-card">
+        <h4 style="margin:0 0 10px;">Your Progress</h4>
+        <div class="progress-row">Gates Cleared <b>${state.gatesCleared} / ${state.gatesTotal}</b></div>
+        <div class="progress-row">Accuracy Rate <b>${accuracy}%</b></div>
+        <div class="progress-row">Streak <b>${state.streak} 🔥</b></div>
+        <div class="progress-row">XP Earned <b>${xpEarned} XP</b></div>
+      </div>
+      <div class="col" style="max-width:200px;">
+        <div class="level-shield"><div class="shield-big">LEVEL<br>ADJUSTED</div></div>
+      </div>
+      <div class="col progress-card">
+        <h4 style="margin:0 0 10px;">Next Challenges</h4>
+        <p style="font-size:12px;color:var(--ink-dim);margin:0 0 6px;">Based on your mistakes, the next gates will focus on:</p>
+        <ul class="next-list">
+          ${nextFocusList(accuracy)}
+        </ul>
+      </div>
+    </div>
+    <div class="banner-note">The difficulty is now adapted to help you learn more effectively!</div>
+    <button class="btn-primary" id="btnToSummary" style="max-width:260px;margin:16px auto 0;display:block;">See Journey Summary ›</button>
+  `;
+  document.getElementById('btnToSummary').onclick = renderSummary;
+}
+
+function nextFocusList(accuracy){
+  const focus = [];
+  if(state.mistakes.tense>0) focus.push('Present Continuous & Future Plans');
+  if(state.mistakes.agreement>0) focus.push('Subject-Verb Agreement');
+  if(state.mistakes.preposition>0) focus.push('Preposition Usage');
+  if(focus.length===0) focus.push('Wh-Questions', 'Advanced Tenses');
+  return focus.map(f=>`<li>${f}</li>`).join('');
+}
+
+/* ===================== SCREEN: SUMMARY ===================== */
+function renderSummary(){
+  document.getElementById('sidebar').style.display='none';
+  renderStatusBar();
+  const accuracy = state.attempts ? Math.round(state.correctFirstTry/state.attempts*100) : 100;
+  document.getElementById('stage').innerHTML = `
+    <div class="screen">
+      ${sceneHtml({title:'PRESENT TENSE', showBubble:null})}
+      <div class="summary-card">
+        <h4 style="margin:0 0 6px;">Journey Summary</h4>
+        <p style="font-size:12.5px;color:var(--ink-dim);margin:0 0 10px;">Great work, Driver!</p>
+        <div class="summary-row">Gates Cleared <b>${state.gatesCleared} / ${state.gatesTotal}</b></div>
+        <div class="summary-row">Accuracy Rate <b>${accuracy}%</b></div>
+        <div class="summary-row">Total XP <b>${state.xp}</b></div>
+        <div class="summary-row">Coins Earned <b>${state.coins}</b></div>
+        <button class="btn-primary" id="btnContinue">Continue Journey ›</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnContinue').onclick = ()=>{
+    // loop back to home with progress retained
+    state.currentGateIdx = 0;
+    renderHome();
+  };
+}
+
+/* ===================== INIT ===================== */
+renderHome();
+</script>
+</body>
+</html>

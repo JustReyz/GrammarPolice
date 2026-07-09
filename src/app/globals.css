@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-navy-radial text-ink min-h-screen flex flex-col items-center px-[14px] pt-[22px] pb-[60px];
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer utilities {
+  .clip-shield {
+    clip-path: polygon(
+      50% 0%,
+      100% 15%,
+      100% 60%,
+      50% 100%,
+      0% 60%,
+      0% 15%
+    );
+  }
+}
+
+/* Reduce motion - exact match of prototype */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
