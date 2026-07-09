@@ -24,7 +24,7 @@ export default function RemedialChoice({
   const [chosen, setChosen] = useState<string | null>(null);
   const [disabled, setDisabled] = useState(false);
   const [notice, setNotice] = useState(
-    "Mode remedial muncul otomatis berdasarkan kesalahanmu. Ayo kuasai materinya sebelum lanjut ke gerbang berikutnya!"
+    "Remedial mode activates automatically based on your mistakes. Master the material before moving to the next gate!"
   );
 
   const handleClick = (val: string) => {
@@ -34,12 +34,12 @@ export default function RemedialChoice({
 
     if (norm(val) === norm(correct)) {
       setNotice(
-        "Correct! Materi dikuasai — melanjutkan ke gerbang berikutnya..."
+        "Correct! Material mastered — moving to the next gate..."
       );
       setTimeout(onCorrect, 900);
     } else {
       setNotice(
-        "Belum tepat — perhatikan jawaban yang benar di atas, lalu lanjut ke gerbang berikutnya."
+        "Not quite right — review the correct answer above, then proceed to the next gate."
       );
       setTimeout(onIncorrect, 1300);
     }

@@ -3,6 +3,7 @@
 interface FeedbackWrongProps {
   userAnswer: string;
   wrongExplain: string;
+  advice?: string;
   onRemedial: () => void;
 }
 
@@ -18,6 +19,7 @@ function escapeHtml(s: string) {
 export default function FeedbackWrong({
   userAnswer,
   wrongExplain,
+  advice,
   onRemedial,
 }: FeedbackWrongProps) {
   return (
@@ -48,6 +50,11 @@ export default function FeedbackWrong({
       <div className="bg-[rgba(255,255,255,0.05)] border-l-3 border-gold rounded-[8px] px-[14px] py-[12px] mt-[12px] text-[13px] leading-[1.5] text-ink-dim">
         {wrongExplain}
       </div>
+      {advice && (
+        <div className="bg-[rgba(245,197,66,.12)] border border-[rgba(245,197,66,.4)] text-gold-light px-[14px] py-[10px] rounded-[8px] text-[12.5px] mt-[12px]">
+          💡 {advice}
+        </div>
+      )}
       <button
         onClick={onRemedial}
         className="w-full mt-[10px] bg-green-btn-grad text-white border-none px-[12px] py-[12px] rounded-[10px] font-extrabold cursor-pointer text-[13.5px] transition-transform duration-[0.15s] hover:translate-y-[-2px]"

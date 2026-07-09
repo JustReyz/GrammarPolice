@@ -12,8 +12,8 @@ export default function Masthead() {
         </span>
       </h1>
       <div className="mt-[10px] inline-block bg-masthead-sub text-white px-[22px] py-[7px] rounded-[20px] text-[13px] font-semibold tracking-[.4px] shadow-green-glow">
-        Simulasi Percakapan • Evaluasi Kontekstual • Adaptive Learning berbasis
-        AI
+        Conversation Simulation • Contextual Evaluation • AI-Powered Adaptive
+                Learning
       </div>
     </header>
   );

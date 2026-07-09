@@ -56,6 +56,9 @@ interface AppState {
   gates: GateData[];
   currentGateIdx: number;
   lastUserAnswer: string;
+  llmExplanation: string;
+  llmCorrectedSentence: string | null;
+  llmAdvice: string;
   pulseKey: string | null;
   sessionGatesCleared: number;
   sessionCorrectFirstTry: number;
@@ -68,6 +71,9 @@ interface AppContextType extends AppState {
   login: (username: string) => Promise<void>;
   logout: () => void;
   setScreen: (screen: Screen) => void;
+  setLlmExplanation: (text: string) => void;
+  setLlmCorrectedSentence: (text: string | null) => void;
+  setLlmAdvice: (text: string) => void;
   startJourney: () => Promise<void>;
   goToGate: (idx?: number) => void;
   handleCorrect: (answer: string) => Promise<void>;
@@ -86,6 +92,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [gates, setGates] = useState<GateData[]>([]);
   const [currentGateIdx, setCurrentGateIdx] = useState(0);
   const [lastUserAnswer, setLastUserAnswer] = useState("");
+  const [llmExplanation, setLlmExplanation] = useState("");
+  const [llmCorrectedSentence, setLlmCorrectedSentence] = useState<string | null>(null);
+  const [llmAdvice, setLlmAdvice] = useState("");
   const [pulseKey, setPulseKey] = useState<string | null>(null);
   const [sessionGatesCleared, setSessionGatesCleared] = useState(0);
   const [sessionCorrectFirstTry, setSessionCorrectFirstTry] = useState(0);
@@ -254,6 +263,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         gates,
         currentGateIdx,
         lastUserAnswer,
+        llmExplanation,
+        llmCorrectedSentence,
+        llmAdvice,
         pulseKey,
         sessionGatesCleared,
         sessionCorrectFirstTry,
@@ -263,6 +275,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         setScreen,
+        setLlmExplanation,
+        setLlmCorrectedSentence,
+        setLlmAdvice,
         startJourney,
         goToGate,
         handleCorrect,

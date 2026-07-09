@@ -3,6 +3,7 @@
 interface FeedbackCorrectProps {
   userAnswer: string;
   correctExplain: string;
+  advice?: string;
   xpGained?: number;
   coinsGained?: number;
   onNext: () => void;
@@ -20,6 +21,7 @@ function escapeHtml(s: string) {
 export default function FeedbackCorrect({
   userAnswer,
   correctExplain,
+  advice,
   xpGained = 20,
   coinsGained = 10,
   onNext,
@@ -50,6 +52,11 @@ export default function FeedbackCorrect({
         <div className="bg-[rgba(255,255,255,0.05)] border-l-3 border-gold rounded-[8px] px-[14px] py-[12px] mt-[12px] text-[13px] leading-[1.5] text-ink-dim">
           {correctExplain}
         </div>
+        {advice && (
+          <div className="bg-[rgba(245,197,66,.12)] border border-[rgba(245,197,66,.4)] text-gold-light px-[14px] py-[10px] rounded-[8px] text-[12.5px] mt-[12px]">
+            💡 {advice}
+          </div>
+        )}
       </div>
       <div className="bg-rewards-card-bg border border-[rgba(60,177,95,.35)] rounded-[16px] p-[18px] min-w-[190px]">
         <h4 className="m-0 mb-[12px] text-[13px] tracking-[.5px] text-[#cfe9d8]">

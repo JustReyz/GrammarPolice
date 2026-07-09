@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Grammar Police",
   description:
-    "Simulasi Percakapan • Evaluasi Kontekstual • Adaptive Learning berbasis AI",
+    "Conversation Simulation • Contextual Evaluation • AI-Powered Adaptive Learning"
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

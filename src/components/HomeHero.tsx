@@ -24,8 +24,7 @@ export default function HomeHero() {
         POLICE
       </div>
       <p className="text-ink-dim text-[13px] max-w-[420px] mt-[14px]">
-        Ready to improve your grammar? Let&apos;s hit the road — setiap gerbang
-        menguji satu aturan tata bahasa lewat percakapan nyata.
+        Ready to improve your grammar? Let&apos;s hit the road — each gate tests one grammar rule through real conversation.
       </p>
       <button className="mt-[22px] bg-green-btn-grad text-white border-none px-[40px] py-[14px] rounded-[14px] text-[15px] font-extrabold tracking-[.5px] cursor-pointer shadow-green-btn transition-all duration-[0.18s] hover:translate-y-[-3px] hover:shadow-green-btn-hover active:translate-y-0">
         Start Journey 🚗

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useApp } from "@/lib/AppContext";
 import Masthead from "./Masthead";
 import StatusBar from "./StatusBar";
@@ -39,7 +40,13 @@ export default function GameScreen() {
     sessionCorrectFirstTry,
     sessionAttempts,
     sessionMistakes,
+    llmExplanation,
+    llmCorrectedSentence,
+    llmAdvice,
     setScreen,
+    setLlmExplanation,
+    setLlmCorrectedSentence,
+    setLlmAdvice,
     handleCorrect,
     handleWrong,
     nextGate,
@@ -49,6 +56,8 @@ export default function GameScreen() {
     logout,
     startJourney,
   } = useApp();
+
+  const [isEvaluating, setIsEvaluating] = useState(false);
 
   if (!user) return null;
   const u = user;
@@ -94,6 +103,9 @@ export default function GameScreen() {
   };
 
   function renderGateScreen() {
+    setLlmExplanation("");
+    setLlmAdvice("");
+    setLlmCorrectedSentence(null);
     if (!gate) {
       return (
         <div className="text-center py-[60px]">
@@ -109,7 +121,6 @@ export default function GameScreen() {
     }
 
     if (gate.type === "sentence") {
-      const pattern = gate.check_regex;
       return (
         <div className="animate-slide-fade">
           <GateScene
@@ -118,12 +129,38 @@ export default function GameScreen() {
             categoryLabel={getCatLabel(gate)}
           />
           <SentenceInput
-            onSubmit={(val) => {
-              if (pattern) {
-                const re = new RegExp(pattern, "i");
-                re.test(val) ? handleCorrect(val) : handleWrong(val);
-              } else {
-                handleCorrect(val);
+            disabled={isEvaluating}
+            onSubmit={async (val) => {
+              setIsEvaluating(true);
+              try {
+                const res = await fetch("/api/evaluate", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    question: gate.npc_text || gate.title,
+                    userAnswer: val,
+                    category: gate.category,
+                  }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                  setLlmExplanation(data.error);
+                  handleWrong(val);
+                  return;
+                }
+                setLlmExplanation(data.explanation);
+                setLlmCorrectedSentence(data.correctedSentence);
+                setLlmAdvice(data.advice || "");
+                if (data.isCorrect) {
+                  handleCorrect(val);
+                } else {
+                  handleWrong(val);
+                }
+              } catch {
+                setLlmExplanation("Unable to evaluate. Try again.");
+                handleWrong(val);
+              } finally {
+                setIsEvaluating(false);
               }
             }}
           />
@@ -176,7 +213,8 @@ export default function GameScreen() {
     return (
       <FeedbackCorrect
         userAnswer={lastUserAnswer}
-        correctExplain={gate.correct_explain || "Correct!"}
+        correctExplain={llmExplanation || gate.correct_explain || "Correct!"}
+        advice={llmAdvice}
         onNext={nextGate}
       />
     );
@@ -185,14 +223,19 @@ export default function GameScreen() {
   function renderFeedbackWrongScreen() {
     if (!gate) return null;
     const wExplain =
+      llmExplanation ||
       gate.wrong_explain ||
       (gate.correct_answer
         ? `Not quite — the correct answer is: "${gate.correct_answer}".`
         : "Take another look at the grammar rule for this gate.");
+    const correctedInfo = llmCorrectedSentence
+      ? `Corrected: "${llmCorrectedSentence}"`
+      : null;
     return (
       <FeedbackWrong
         userAnswer={lastUserAnswer}
-        wrongExplain={wExplain}
+        wrongExplain={correctedInfo ? wExplain + " " + correctedInfo : wExplain}
+        advice={llmAdvice}
         onRemedial={goRemedial}
       />
     );

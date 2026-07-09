@@ -78,7 +78,7 @@ export default function LoginScreen() {
         </div>
       </div>
       <footer className="w-full max-w-[1040px] text-center mt-[16px] text-[11.5px] text-ink-dim">
-        Grammar Police — Simulasi Percakapan • Evaluasi Kontekstual • Adaptive Learning berbasis AI
+        Grammar Police — Conversation Simulation • Contextual Evaluation • AI-Powered Adaptive Learning
       </footer>
     </>
   );

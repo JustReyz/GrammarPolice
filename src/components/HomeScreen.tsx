@@ -82,8 +82,8 @@ export default function HomeScreen() {
       </div>
       <footer className="w-full max-w-[1040px] flex justify-between items-center mt-[16px] text-[11.5px] text-ink-dim">
         <span>
-          Prototype interaktif berdasarkan storyboard 9-panel &quot;Grammar
-          Police&quot;
+          Interactive prototype based on the 9-panel &quot;Grammar
+                    Police&quot; storyboard
         </span>
         <button
           onClick={logout}
