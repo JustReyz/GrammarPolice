@@ -57,6 +57,21 @@ export async function PATCH(
       );
     }
     vals.push(params.id);
+    // Calculate XP-based rank
+    const xpIndex = vals.findIndex((_, i) => sets[i]?.startsWith('xp'));
+    if (xpIndex !== -1) {
+      const newXp = body.xp;
+      let xpRank = "🚗 Learner";
+      if (newXp >= 3500) xpRank = "👑 Grammar Legend";
+      else if (newXp >= 2500) xpRank = "⭐ Grammar Champion";
+      else if (newXp >= 1800) xpRank = "🏆 Certified Driver";
+      else if (newXp >= 1200) xpRank = "🚔 Elite Driver";
+      else if (newXp >= 700) xpRank = "🚖 Advanced Driver";
+      else if (newXp >= 300) xpRank = "🚙 Skilled Driver";
+      else if (newXp >= 100) xpRank = "🚘 Rookie Driver";
+      sets.push('current_rank = ?');
+      vals.splice(vals.length - 1, 0, xpRank);
+    }
     await pool.execute(
       `UPDATE users SET ${sets.join(", ")} WHERE id = ?`,
       vals,
