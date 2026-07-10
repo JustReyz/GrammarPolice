@@ -19,6 +19,7 @@ export interface UserData {
   mistake_preposition: number;
   gates_cleared: number;
   gates_total: number;
+  current_rank: string;
 }
 
 export interface GateData {

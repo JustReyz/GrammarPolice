@@ -7,6 +7,7 @@ interface StatusBarProps {
   stars: number;
   coins: number;
   hearts: number;
+  rank?: string;
   pulseKey?: string | null;
 }
 
@@ -17,6 +18,7 @@ export default function StatusBar({
   stars,
   coins,
   hearts,
+  rank,
   pulseKey,
 }: StatusBarProps) {
   const xpPct = Math.min(100, Math.round((xp / xpMax) * 100));
@@ -30,7 +32,7 @@ export default function StatusBar({
         </div>
         <div className="leading-[1.15]">
           <b className="block text-[12.5px] text-white">Level {level}</b>
-          <span className="text-ink-dim text-[10.5px]">Explorer</span>
+          <span className="text-ink-dim text-[10.5px]">{rank || "Explorer"}</span>
         </div>
       </div>
 

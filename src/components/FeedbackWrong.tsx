@@ -42,7 +42,7 @@ export default function FeedbackWrong({
         Your Answer
       </span>
       <div className="bg-[rgba(224,69,90,.12)] border border-[rgba(224,69,90,.4)] rounded-[8px] px-[14px] py-[10px] mt-[6px] text-[13.5px]">
-        {escapeHtml(userAnswer)}
+        {userAnswer}
       </div>
       <div className="mt-[14px] font-bold text-[13px] text-gold-light">
         Explanation

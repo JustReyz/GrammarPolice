@@ -308,6 +308,7 @@ export default function GameScreen() {
           stars={user.stars}
           coins={user.coins}
           hearts={user.hearts}
+          rank={user.current_rank}
           pulseKey={pulseKey}
         />
         <div className="flex min-h-[520px]">
