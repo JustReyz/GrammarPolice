@@ -141,7 +141,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user);
       resetSession();
       // Route to mission select if no learning goal yet
-      setScreen(data.user.learning_goal ? "home" : "mission-select");
+      setScreen("mission-select");
     },
     [resetSession],
   );
