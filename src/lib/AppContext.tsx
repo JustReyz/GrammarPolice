@@ -142,14 +142,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (data.error) throw new Error(data.error);
       setUser(data.user);
       resetSession();
-      // Route appropriately based on user onboarding status
-      if (data.user.overall_mastery === null || data.user.overall_mastery === undefined) {
-        setScreen("assessment");
-      } else if (!data.user.learning_goal) {
-        setScreen("mission-select");
-      } else {
-        setScreen("home");
-      }
+      // Always start with diagnostic assessment
+      setScreen("assessment");
     },
     [resetSession],
   );

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
 import { ASSESSMENT_QUESTIONS, type AssessmentQuestion } from "@/lib/assessment-questions";
-import { playSound } from "@/lib/playSound";
 
 interface Props {
   onComplete: (results: any) => void;
@@ -28,11 +27,8 @@ export default function AssessmentChat({ onComplete }: Props) {
   const [sessionId, setSessionId] = useState("");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
-  const [answered, setAnswered] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
 
   const questions = ASSESSMENT_QUESTIONS;
   const q = questions[currentIdx] as AssessmentQuestion | undefined;
@@ -53,69 +49,52 @@ export default function AssessmentChat({ onComplete }: Props) {
     })();
   }, [userId]);
 
-  const handleSelect = useCallback((opt: string) => {
-    if (answered || submitting) return;
+  const handlePick = useCallback(async (opt: string) => {
+    if (submitting || !q) return;
     setSelected(opt);
-  }, [answered, submitting]);
-
-  const handleSubmit = useCallback(async () => {
-    if (!selected || !q || submitting) return;
     setSubmitting(true);
 
+    // Submit answer silently
     try {
-      const res = await fetch("/api/assessment/answer", {
+      await fetch("/api/assessment/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           sessionId,
           question: q.question,
-          userAnswer: selected,
+          userAnswer: opt,
           category: q.category,
           questionIndex: currentIdx,
           totalQuestions: total,
         }),
       });
-      const data = await res.json();
-      const correct = data.evalResult?.score === 100;
-      setIsCorrect(correct);
-      setAnswered(true);
-      if (correct) {
-        playSound("correct");
-        setCorrectCount(p => p + 1);
-      } else {
-        playSound("incorrect");
-      }
-    } catch {
-      setAnswered(true);
-      setIsCorrect(false);
-      playSound("incorrect");
-    }
-    setSubmitting(false);
-  }, [selected, q, submitting, userId, sessionId, currentIdx, total]);
+    } catch {}
 
-  const handleNext = useCallback(async () => {
-    const next = currentIdx + 1;
-    if (next >= total) {
-      // Fetch final results
-      try {
-        const res = await fetch("/api/assessment/result?userId=" + userId);
-        const resultData = await res.json();
-        if (!resultData.error) onComplete(resultData);
-      } catch {}
-      return;
-    }
-    setCurrentIdx(next);
-    setSelected(null);
-    setAnswered(false);
-    setIsCorrect(false);
-  }, [currentIdx, total, userId, onComplete]);
+    // Brief pause then advance
+    setTimeout(() => {
+      const next = currentIdx + 1;
+      if (next >= total) {
+        (async () => {
+          try {
+            const res = await fetch("/api/assessment/result?userId=" + userId);
+            const resultData = await res.json();
+            if (!resultData.error) onComplete(resultData);
+          } catch {}
+        })();
+        return;
+      }
+      setCurrentIdx(next);
+      setSelected(null);
+      setSubmitting(false);
+    }, 350);
+  }, [q, submitting, userId, sessionId, currentIdx, total, onComplete]);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[400px] gap-[12px] bg-white">
         <div className="w-[48px] h-[48px] rounded-full bg-slate-100 flex items-center justify-center text-[22px] animate-pulse">🛡️</div>
-        <p className="text-slate-400 text-[13px] font-semibold">Mempersiapkan soal...</p>
+        <p className="text-slate-400 text-[13px] font-semibold">Preparing questions...</p>
       </div>
     );
   }
@@ -161,7 +140,7 @@ export default function AssessmentChat({ onComplete }: Props) {
       <div className="flex-1 w-full flex flex-col justify-start px-[24px] pt-[28px] overflow-y-auto">
         {/* Question step indicator */}
         <p className="text-[13px] font-extrabold tracking-[.08em] text-[#3b66a6] mb-[12px] uppercase">
-          SOAL {currentIdx + 1} / {total} • {catLabel}
+          Question {currentIdx + 1} / {total} • {catLabel}
         </p>
 
         {/* 15 Progress Dots */}
@@ -192,21 +171,15 @@ export default function AssessmentChat({ onComplete }: Props) {
             {q.options.map((opt) => {
               let optClass = "bg-white border-[#dbe4fb] text-[#1c355e] hover:border-[#b4c9f7] hover:bg-[#fbfdff]";
 
-              if (selected === opt && !answered) {
+              if (submitting || selected === opt) {
                 optClass = "bg-[#eef5fc] border-[#2258a5] text-[#2258a5] ring-2 ring-[#2258a5]/10 font-bold";
-              }
-              if (answered && opt === q.correctAnswer) {
-                optClass = "bg-[#eefbf0] border-[#34a853] text-[#1e7e34] font-bold";
-              }
-              if (answered && selected === opt && opt !== q.correctAnswer) {
-                optClass = "bg-[#fdf2f2] border-[#ea4335] text-[#c23b22] font-bold";
               }
 
               return (
                 <button
                   key={opt}
-                  onClick={() => handleSelect(opt)}
-                  disabled={answered}
+                  onClick={() => handlePick(opt)}
+                  disabled={submitting}
                   className={`w-full text-left px-[18px] py-[15px] rounded-[16px] border-[1.5px] text-[14px] font-medium transition-all duration-200 cursor-pointer disabled:cursor-default ${optClass}`}
                 >
                   {opt}
@@ -214,47 +187,14 @@ export default function AssessmentChat({ onComplete }: Props) {
               );
             })}
           </div>
-
-          {/* Correct/Incorrect Feedback banner */}
-          {answered && (
-            <div className={`px-[16px] py-[12px] rounded-[14px] text-[12.5px] leading-[1.5] font-semibold animate-slide-fade ${
-              isCorrect
-                ? "bg-[#eefbf0] text-[#1e7e34] border border-[#a3e4b3]"
-                : "bg-[#fdf2f2] text-[#c23b22] border border-[#f9c2c2]"
-            }`}>
-              {isCorrect ? "👍 Benar!" : "😅 Belum tepat."}
-              <p className="mt-[4px] font-normal text-[12px] opacity-90">
-                {isCorrect
-                  ? q.explanation
-                  : `Jawaban yang benar: "${q.correctAnswer}". ${q.explanation}`}
-              </p>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* ─── Bottom Action Button Area ─── */}
-      <div className="w-full px-[24px] pb-[32px] pt-[16px] bg-white border-t border-slate-100 shrink-0">
-        {!answered ? (
-          <button
-            onClick={handleSubmit}
-            disabled={!selected || submitting}
-            className={`w-full h-[52px] rounded-[16px] text-[15px] font-extrabold tracking-wide transition-all duration-200 border-none cursor-pointer ${
-              selected
-                ? "bg-[#2258a5] text-white shadow-[0_6px_20px_rgba(34,88,165,0.25)] hover:bg-[#1a4785] active:translate-y-[1px]"
-                : "bg-[#e2e7ef] text-[#9ca7b6] cursor-not-allowed"
-            }`}
-          >
-            {submitting ? "Memeriksa..." : "Lanjut →"}
-          </button>
-        ) : (
-          <button
-            onClick={handleNext}
-            className="w-full h-[52px] rounded-[16px] text-[15px] font-extrabold tracking-wide bg-[#2258a5] text-white shadow-[0_6px_20px_rgba(34,88,165,0.25)] hover:bg-[#1a4785] active:translate-y-[1px] transition-all duration-200 border-none cursor-pointer"
-          >
-            {currentIdx + 1 >= total ? "Lihat Hasil →" : "Lanjut →"}
-          </button>
-        )}
+      {/* ─── Bottom Area ─── */}
+      <div className="w-full px-[24px] pb-[32px] pt-[16px] bg-white border-t border-slate-100 shrink-0 text-center">
+        <p className="text-[12px] text-slate-400 m-0">
+          {submitting ? "Submitting..." : "Tap your answer above"}
+        </p>
       </div>
     </div>
   );
