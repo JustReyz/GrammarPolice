@@ -84,6 +84,7 @@ interface AppState {
 interface AppContextType extends AppState {
   login: (username: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   setScreen: (screen: Screen) => void;
   setLlmExplanation: (text: string) => void;
   setAssessmentData: (data: AssessmentData) => void;
@@ -141,8 +142,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (data.error) throw new Error(data.error);
       setUser(data.user);
       resetSession();
-      // Route to mission select if no learning goal yet
-      setScreen("mission-select");
+      // Route appropriately based on user onboarding status
+      if (data.user.overall_mastery === null || data.user.overall_mastery === undefined) {
+        setScreen("assessment");
+      } else if (!data.user.learning_goal) {
+        setScreen("mission-select");
+      } else {
+        setScreen("home");
+      }
     },
     [resetSession],
   );
@@ -155,14 +162,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     resetSession();
   }, [resetSession]);
 
+  const refreshUser = useCallback(async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`/api/user/${user.id}`);
+      const data = await res.json();
+      if (data.user) setUser(data.user);
+    } catch (err) {
+      console.error("Refresh user error:", err);
+    }
+  }, [user]);
+
   const startJourney = useCallback(async () => {
-    const res = await fetch("/api/gates");
+    if (!user) return;
+    const res = await fetch(`/api/gates?userId=${user.id}`);
     const data = await res.json();
     setGates(data.gates);
     setCurrentGateIdx(0);
     resetSession();
     setScreen("gate");
-  }, [resetSession]);
+  }, [user, resetSession]);
 
   const goToGate = useCallback(
     (idx?: number) => {
@@ -183,7 +202,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setSessionAttempts((p) => p + 1);
     setPulseKey("coin");
 
-    // XP/coins tracked in session state only — saved to DB on session complete
+    // Update local user state immediately for real-time UI/progress feedback!
+    setUser((prev) => {
+      if (!prev) return null;
+      let newXp = prev.xp + 20;
+      let newLevel = prev.level;
+      const newXpMax = prev.xp_max;
+      if (newXp >= newXpMax) {
+        newXp -= newXpMax;
+        newLevel += 1;
+      }
+      return {
+        ...prev,
+        xp: newXp,
+        level: newLevel,
+        coins: prev.coins + 10,
+        attempts: prev.attempts + 1,
+        correct_first_try: prev.correct_first_try + 1,
+      };
+    });
+
     setSessionGatesCleared((p) => p + 1);
     setScreen("feedback-correct");
   }, []);
@@ -202,6 +240,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         agreement: prev.agreement + (category === "agreement" ? 1 : 0),
         preposition: prev.preposition + (category === "preposition" ? 1 : 0),
       }));
+
+      // Update local user state immediately for real-time heart reduction feedback!
+      setUser((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          hearts: Math.max(0, prev.hearts - 1),
+          attempts: prev.attempts + 1,
+          mistake_tense: prev.mistake_tense + (category === "tense" ? 1 : 0),
+          mistake_agreement: prev.mistake_agreement + (category === "agreement" ? 1 : 0),
+          mistake_preposition: prev.mistake_preposition + (category === "preposition" ? 1 : 0),
+        };
+      });
 
       setPulseKey("heart");
       setScreen("feedback-wrong");
@@ -230,33 +281,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const completeSession = useCallback(async () => {
     if (!user) return;
 
-    let finalXp = user.xp + sessionCorrectFirstTry * 20;
-    let finalLevel = user.level;
-    // Level up: every 100 XP = 1 level up, keep remainder
-    while (finalXp >= 100) {
-      finalXp -= 100;
-      finalLevel += 1;
-    }
-
-    const finalCoins = user.coins + sessionCorrectFirstTry * 10;
-    const finalHearts = Math.max(0, user.hearts - sessionHeartsLost);
+    const finalStreak = sessionHeartsLost > 0 ? 0 : user.streak + sessionCorrectFirstTry;
 
     await fetch(`/api/user/${user.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        xp: finalXp,
-        level: finalLevel,
-        coins: finalCoins,
-        hearts: finalHearts,
-        correct_first_try: user.correct_first_try + sessionCorrectFirstTry,
-        attempts: user.attempts + sessionAttempts,
-        streak:
-          sessionHeartsLost > 0 ? 0 : user.streak + sessionCorrectFirstTry,
-        mistake_tense: user.mistake_tense + sessionMistakes.tense,
-        mistake_agreement: user.mistake_agreement + sessionMistakes.agreement,
-        mistake_preposition:
-          user.mistake_preposition + sessionMistakes.preposition,
+        xp: user.xp,
+        level: user.level,
+        coins: user.coins,
+        hearts: user.hearts,
+        correct_first_try: user.correct_first_try,
+        attempts: user.attempts,
+        streak: finalStreak,
+        mistake_tense: user.mistake_tense,
+        mistake_agreement: user.mistake_agreement,
+        mistake_preposition: user.mistake_preposition,
       }),
     });
 
@@ -268,8 +308,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     user,
     sessionCorrectFirstTry,
     sessionHeartsLost,
-    sessionAttempts,
-    sessionMistakes,
   ]);
 
   return (
@@ -292,6 +330,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionMistakes,
         login,
         logout,
+        refreshUser,
         setScreen,
         setAssessmentData,
         setLlmExplanation,

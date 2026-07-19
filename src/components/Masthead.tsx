@@ -1,19 +1,16 @@
 export default function Masthead() {
   return (
-    <header className="w-full max-w-[1040px] text-center mb-[18px]">
-      <h1 className="text-[clamp(22px,4vw,38px)] tracking-[2px] m-0 font-extrabold [text-shadow:0_2px_0_rgba(0,0,0,0.3)]">
-        <span className="inline-block drop-shadow-[0_2px_4px_rgba(0,0,0,.4)] animate-spin-star">
-          🛡️
-        </span>{" "}
-        <span className="text-white">STORYBOARD</span>{" "}
-        <span className="text-gold">GRAMMAR POLICE</span>{" "}
-        <span className="inline-block drop-shadow-[0_2px_4px_rgba(0,0,0,.4)] animate-spin-star">
-          🛡️
-        </span>
+    <header className="w-full max-w-[1040px] text-center mb-[12px]">
+      <h1 className="text-[clamp(20px,4vw,34px)] tracking-[1.4px] m-0 font-black text-white drop-shadow-[0_6px_18px_rgba(19,33,61,0.18)]">
+        <span className="inline-block mr-[6px]">🛡️</span>
+        GRAMMAR POLICE
+        <span className="text-gold ml-[8px]">ACADEMY</span>
       </h1>
-      <div className="mt-[10px] inline-block bg-masthead-sub text-white px-[22px] py-[7px] rounded-[20px] text-[13px] font-semibold tracking-[.4px] shadow-green-glow">
-        Conversation Simulation • Contextual Evaluation • AI-Powered Adaptive
-                Learning
+      <div className="mt-[8px] inline-flex items-center gap-[8px] bg-white text-ink px-[16px] py-[6px] rounded-[999px] text-[11.5px] font-bold tracking-[.2px] shadow-[0_10px_22px_rgba(19,33,61,0.12)]">
+        <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-masthead-sub text-white text-[10px]">
+          AI
+        </span>
+        Mission-based grammar learning with live scoring
       </div>
     </header>
   );

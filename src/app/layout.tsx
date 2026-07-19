@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
 export const metadata: Metadata = {
-  title: "Grammar Police",
+  title: "Grammar Police Academy",
   description:
-    "Conversation Simulation • Contextual Evaluation • AI-Powered Adaptive Learning"
+    "Gamified English grammar learning with AI scoring, missions, and adaptive feedback.",
 };
 
 export default function RootLayout({
@@ -14,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={nunito.className}>{children}</body>
     </html>
   );
 }

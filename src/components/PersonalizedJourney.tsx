@@ -7,67 +7,89 @@ interface Props {
   onStartJourney: () => void;
 }
 
-export default function PersonalizedJourney({ district, overallMastery, rank, onStartJourney }: Props) {
-  const districtIcon: Record<string, string> = {
-    "Travel District": "✈️",
-    "Student District": "📚",
-    "Workplace District": "💼",
-    "Interview District": "🎤",
-    "Presentation District": "📊",
-  };
+const TOPIC_META: Record<string, { icon: string; name: string; desc: string; grammar: string[] }> = {
+  "Daily Life District": {
+    icon: "🏡",
+    name: "Daily Life",
+    desc: "Percakapan sehari-hari — mengobrol dengan teman, keluarga, atau tetangga.",
+    grammar: ["present simple/continuous", "past simple", "question formation", "pronouns"],
+  },
+  "Travel District": {
+    icon: "✈️",
+    name: "Travel",
+    desc: "Situasi di bandara, hotel, memesan makanan, dan bertanya arah di luar negeri.",
+    grammar: ["modal verbs", "future tense", "prepositions of place", "polite requests"],
+  },
+  "Interview District": {
+    icon: "💼",
+    name: "Job Interview / Professional",
+    desc: "Wawancara kerja, email formal, dan komunikasi di lingkungan kantor.",
+    grammar: ["present perfect", "past simple", "comparative/superlative", "formal tone"],
+  },
+};
 
-  const icon = districtIcon[district] || "🗺️";
+export default function PersonalizedJourney({ district, overallMastery, rank, onStartJourney }: Props) {
+  const meta = TOPIC_META[district] || { icon: "🗺️", name: district, desc: "", grammar: [] };
 
   return (
-    <div className="animate-slide-fade max-w-[650px] mx-auto">
-      <div className="text-center mb-[20px]">
-        <div className="text-[40px] mb-[4px]">🗺️</div>
-        <h2 className="text-[22px] font-extrabold text-gold m-0">Your Personalized Journey</h2>
-        <p className="text-[12px] text-ink-dim mt-[4px]">Built based on your assessment results</p>
+    <div className="animate-slide-fade max-w-[600px] mx-auto">
+      <div className="text-center mb-[14px]">
+        <div className="text-[34px] mb-[3px]">🗺️</div>
+        <h2 className="text-[20px] font-extrabold text-gold m-0">Perjalanan Personalmu</h2>
+        <p className="text-[11px] text-ink-dim mt-[3px]">Dibuat berdasarkan hasil asesmen</p>
       </div>
 
       {/* District card */}
-      <div className="bg-navy-card border border-line rounded-[16px] p-[20px] text-center mb-[16px]">
-        <div className="text-[48px] mb-[8px]">{icon}</div>
-        <h3 className="text-[18px] font-extrabold text-white m-0">{district}</h3>
-        <p className="text-[12px] text-ink-dim mt-[4px]">
-          {district === "Travel District" && "Master travel phrases, directions, and ordering food"}
-          {district === "Student District" && "Focus on academic writing, articles, and passive voice"}
-          {district === "Workplace District" && "Business emails, meetings, and professional communication"}
-          {district === "Interview District" && "Interview questions, answers, and professional talk"}
-          {district === "Presentation District" && "Structuring presentations and public speaking"}
-        </p>
+      <div className="bg-navy-card border border-line rounded-[16px] p-[16px] text-center mb-[12px]">
+        <div className="text-[40px] mb-[6px]">{meta.icon}</div>
+        <h3 className="text-[16px] font-extrabold text-ink m-0">{meta.name}</h3>
+        <p className="text-[11px] text-ink-dim mt-[3px] max-w-[360px] mx-auto">{meta.desc}</p>
+        {meta.grammar.length > 0 && (
+          <div className="mt-[8px] flex flex-wrap justify-center gap-[4px]">
+            {meta.grammar.map((g) => (
+              <span
+                key={g}
+                className="inline-block bg-[#f0f4ff] text-[#4a6fb5] text-[9.5px] font-semibold px-[7px] py-[2px] rounded-[6px]"
+              >
+                {g}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-[12px] mb-[20px]">
-        <div className="bg-navy-card border border-line rounded-[12px] p-[14px] text-center">
-          <div className="text-[24px] font-black text-gold">{overallMastery}%</div>
-          <div className="text-[11px] text-ink-dim">Grammar Mastery</div>
+      <div className="grid grid-cols-2 gap-[10px] mb-[16px]">
+        <div className="bg-navy-card border border-line rounded-[10px] p-[12px] text-center">
+          <div className="text-[22px] font-black text-gold">{overallMastery}%</div>
+          <div className="text-[10.5px] text-ink-dim">Grammar Mastery</div>
         </div>
-        <div className="bg-navy-card border border-line rounded-[12px] p-[14px] text-center">
-          <div className="text-[16px] font-black text-gold-light">{rank}</div>
-          <div className="text-[11px] text-ink-dim">Current Rank</div>
+        <div className="bg-navy-card border border-line rounded-[10px] p-[12px] text-center">
+          <div className="text-[14px] font-black text-gold leading-tight">{rank}</div>
+          <div className="text-[10.5px] text-ink-dim">Starting Tier</div>
         </div>
       </div>
 
       {/* Roadmap preview */}
-      <div className="bg-navy-card border border-line rounded-[16px] p-[18px] mb-[20px]">
-        <h4 className="text-[13px] font-bold text-white m-0 mb-[10px]">Your Roadmap</h4>
-        <div className="flex items-center gap-[8px] text-[12px]">
-          <span className="bg-[rgba(60,177,95,.2)] text-[#3cb15f] px-[10px] py-[4px] rounded-[8px] font-bold">{district}</span>
+      <div className="bg-navy-card border border-line rounded-[14px] p-[14px] mb-[16px]">
+        <h4 className="text-[12px] font-bold text-ink m-0 mb-[8px]">Roadmap Belajar</h4>
+        <div className="flex items-center gap-[6px] text-[11px] flex-wrap">
+          <span className="bg-[rgba(74,111,181,0.1)] text-[#4a6fb5] px-[8px] py-[3px] rounded-[7px] font-bold">{meta.name}</span>
           <span className="text-ink-dim">→</span>
-          <span className="text-ink-dim">Next District</span>
+          <span className="text-ink-dim">10 Gate</span>
           <span className="text-ink-dim">→</span>
-          <span className="text-gold-light font-bold">Graduation 🎓</span>
+          <span className="text-gold font-bold">Graduation 🎓</span>
         </div>
+        <p className="text-[10px] text-ink-dim mt-[6px] leading-[1.4]">
+          Setiap gate berisi 10–15 soal kontekstual. Tingkat kesulitan akan menyesuaikan secara adaptif berdasarkan performamu.
+        </p>
       </div>
 
       <button
         onClick={onStartJourney}
-        className="mx-auto block bg-green-btn-grad text-white border-none px-[36px] py-[12px] rounded-[12px] font-extrabold text-[14px] cursor-pointer transition-transform duration-[0.15s] hover:translate-y-[-2px]"
+        className="mx-auto block w-full max-w-[600px] bg-[#4a6fb5] text-white border-none px-[28px] py-[12px] rounded-[14px] font-extrabold text-[13px] cursor-pointer transition-all duration-200 hover:bg-[#3d5fa3] shadow-[0_6px_20px_rgba(49,89,199,0.25)]"
       >
-        Start Journey 🚗
+        Mulai Perjalanan 🚗
       </button>
     </div>
   );

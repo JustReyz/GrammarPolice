@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { ASSESSMENT_QUESTIONS } from "@/lib/assessment-questions";
 
-const TOTAL_QUESTIONS = 8;
-const FIRST_QUESTION = "Tell me about your daily routine. What do you usually do every day?";
-const FIRST_CATEGORY = "present_tense";
+const TOTAL_QUESTIONS = ASSESSMENT_QUESTIONS.length;
+const FIRST_QUESTION = ASSESSMENT_QUESTIONS[0].question;
+const FIRST_CATEGORY = ASSESSMENT_QUESTIONS[0].category;
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,3 +29,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+

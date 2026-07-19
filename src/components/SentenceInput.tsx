@@ -24,11 +24,11 @@ export default function SentenceInput({
   };
 
   return (
-    <div className="bg-navy-card border border-line rounded-[16px] p-[20px] shadow-[0_10px_22px_rgba(0,0,0,.28)]">
-      <span className="bg-[rgba(255,255,255,0.06)] inline-block px-[14px] py-[6px] rounded-[20px] text-[12px] text-ink-dim mb-[8px]">
+    <div className="bg-white border border-[#dbe4fb] rounded-[20px] p-[14px] shadow-[0_8px_18px_rgba(19,33,61,0.06)]">
+      <span className="bg-[rgba(49,89,199,0.08)] inline-block px-[12px] py-[5px] rounded-[999px] text-[11px] text-masthead-sub font-bold mb-[6px]">
         {disabled ? "AI is evaluating..." : "Your answer"}
       </span>
-      <div className="flex gap-[10px] mt-[14px]">
+      <div className="flex gap-[8px] mt-[10px]">
         <input
           type="text"
           value={value}
@@ -39,12 +39,12 @@ export default function SentenceInput({
           placeholder={disabled ? "Please wait..." : placeholder}
           autoComplete="off"
           disabled={disabled}
-          className="flex-1 bg-[rgba(255,255,255,0.06)] border border-line text-white px-[14px] py-[12px] rounded-[10px] text-[14px] outline-none placeholder:text-ink-dim disabled:opacity-40 disabled:cursor-wait"
+          className="flex-1 bg-[#f7f9ff] border border-[#dbe4fb] text-ink px-[14px] py-[12px] rounded-[16px] text-[13px] outline-none placeholder:text-ink-dim disabled:opacity-40 disabled:cursor-wait"
         />
         <button
           onClick={handleSubmit}
           disabled={disabled}
-          className="bg-blue-btn-grad text-white border-none px-[22px] rounded-[10px] font-bold cursor-pointer text-[14px] transition-transform duration-[0.15s] hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-masthead-sub text-white border-none px-[18px] rounded-[16px] font-bold cursor-pointer text-[13px] transition-transform duration-[0.15s] hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {disabled ? (
             <span className="inline-flex items-center gap-[6px]">

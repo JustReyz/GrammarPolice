@@ -11,15 +11,27 @@ import GrammarPassport from "./GrammarPassport";
 import PersonalizedJourney from "./PersonalizedJourney";
 
 export default function AppShell() {
-  const { screen, assessmentData, setScreen, setAssessmentData, startJourney } = useApp();
+  const { screen, assessmentData, setScreen, setAssessmentData, startJourney, user, refreshUser } = useApp();
 
   const handleMissionSelect = async (goal: string) => {
+    if (!user) return;
     const res = await fetch("/api/mission/select", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: 1, goal }),
+      body: JSON.stringify({ userId: user.id, goal }),
     });
-    if (res.ok) setScreen("assessment");
+    if (res.ok) {
+      const resData = await res.json();
+      const updatedDistrict = resData.district;
+      await refreshUser();
+      if (assessmentData) {
+        setAssessmentData({
+          ...assessmentData,
+          district: updatedDistrict
+        });
+      }
+      setScreen("personalized-journey");
+    }
   };
 
   const handleAssessmentComplete = (data: any) => {
@@ -35,39 +47,40 @@ export default function AppShell() {
 
   if (screen === "login") return <LoginScreen />;
   if (screen === "home") return <HomeScreen />;
-  if (screen === "mission-select" || screen === "assessment" || (screen === "analysis" && data) || (screen === "passport" && data) || (screen === "personalized-journey" && data)) {
+
+  // ─── Assessment: full-screen clean layout (matches reference) ───
+  if (screen === "assessment") {
+    return (
+      <div className="min-h-screen w-full bg-white flex justify-center">
+        <div className="w-full max-w-[520px] h-screen flex flex-col relative bg-white md:shadow-2xl md:border-x md:border-slate-100">
+          <AssessmentChat onComplete={handleAssessmentComplete} />
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Post-assessment screens (analysis, passport, topic select, journey) ───
+  if (screen === "mission-select" || (screen === "analysis" && data) || (screen === "passport" && data) || (screen === "personalized-journey" && data)) {
     const inner = () => {
       if (screen === "mission-select") return <MissionSelect onSelect={handleMissionSelect} />;
-      if (screen === "assessment") return <AssessmentChat onComplete={handleAssessmentComplete} />;
       if (screen === "analysis" && data) return <AnalysisScreen {...data} onContinue={() => setScreen("passport")} />;
-      if (screen === "passport" && data) return <GrammarPassport {...data} onContinue={() => setScreen("personalized-journey")} />;
+      if (screen === "passport" && data) return <GrammarPassport {...data} onContinue={() => setScreen("mission-select")} />;
       if (screen === "personalized-journey" && data) return <PersonalizedJourney {...data} onStartJourney={handleStartJourney} />;
       return null;
     };
     return (
-      <>
-        <header className="w-full max-w-[1040px] text-center mb-[18px] mx-auto">
-          <h1 className="text-[clamp(22px,4vw,38px)] tracking-[2px] m-0 font-extrabold [text-shadow:0_2px_0_rgba(0,0,0,0.3)]">
-            <span className="inline-block drop-shadow-[0_2px_4px_rgba(0,0,0,.4)] animate-spin-star">🛡️</span>{" "}
-            <span className="text-white">GRAMMAR</span>{" "}
-            <span className="text-gold">POLICE</span>{" "}
-            <span className="inline-block drop-shadow-[0_2px_4px_rgba(0,0,0,.4)] animate-spin-star">🛡️</span>
-          </h1>
-          <div className="mt-[10px] inline-block bg-masthead-sub text-white px-[22px] py-[7px] rounded-[20px] text-[13px] font-semibold tracking-[.4px] shadow-green-glow">
-            Police Academy Assessment
-          </div>
-        </header>
-        <div className="w-full max-w-[1040px] bg-frame-bg border border-line rounded-[22px] shadow-app overflow-hidden relative mx-auto">
-          <div className="flex min-h-[520px]">
-            <main className="flex-1 p-[26px_26px_30px] relative overflow-hidden">
+      <div className="min-h-screen w-full flex flex-col bg-white border-t-[2px] border-[#355cc6]">
+        <div className="w-full max-w-[1280px] flex-1 bg-white relative mx-auto">
+          <div className="flex h-full min-h-[calc(100vh-190px)]">
+            <main className="flex-1 p-[18px] md:p-[24px] relative overflow-hidden">
               {inner()}
             </main>
           </div>
         </div>
-        <footer className="w-full max-w-[1040px] text-center mt-[16px] text-[11.5px] text-ink-dim mx-auto">
-          Grammar Police — Police Academy
+        <footer className="w-full max-w-[1280px] text-center mt-[12px] pb-[14px] text-[10.5px] text-white/85 mx-auto">
+          Grammar Police Academy
         </footer>
-      </>
+      </div>
     );
   }
 

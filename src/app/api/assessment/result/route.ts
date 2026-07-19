@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 
@@ -38,12 +40,16 @@ export async function GET(req: NextRequest) {
 
     const overallMastery = overallCount > 0 ? Math.round(overallTotal / overallCount) : 0;
 
-    // Determine rank
-    let rank = "Grammar Cadet";
-    if (overallMastery >= 90) rank = "Elite Cadet";
-    else if (overallMastery >= 75) rank = "Senior Cadet";
-    else if (overallMastery >= 60) rank = "Cadet II";
-    else if (overallMastery >= 40) rank = "Cadet I";
+    // Count correct answers (score === 100 means correct)
+    const correctCount = results.filter(r => r.score === 100).length;
+    const totalQuestions = 15;
+    const correctPct = Math.round((correctCount / totalQuestions) * 100);
+
+    // Determine starting tier per PRD FR-3.3 passport_scoring
+    let rank = "Rookie / Pemula"; // 0-40% (0-6 correct)
+    if (correctCount >= 14) rank = "Senior Officer / Sangat Mahir"; // 86-100% (14-15 correct)
+    else if (correctCount >= 11) rank = "Officer / Mahir"; // 66-85% (11-13 correct)
+    else if (correctCount >= 7) rank = "Trainee / Mulai Mahir"; // 41-65% (7-10 correct)
 
     // Create passport
     const [pass] = await pool.execute(
@@ -88,6 +94,10 @@ export async function GET(req: NextRequest) {
       categories,
       district,
       passportId,
+      correctCount,
+      totalQuestions,
+      correctPct,
+      weakCategories: categories.filter(c => c.score < 100).map(c => c.name),
     });
   } catch (err: any) {
     console.error("Assessment result error:", err.message);
@@ -97,18 +107,20 @@ export async function GET(req: NextRequest) {
 
 function mapGoalToDistrict(goal: string, categories: { name: string; score: number }[]): string {
   const districts: Record<string, string> = {
-    academic: "Student District",
-    job_interview: "Interview District",
-    traveling: "Travel District",
-    daily_conversation: "Travel District",
-    business_english: "Workplace District",
+    daily_life: "Daily Life District",
+    travel: "Travel District",
+    interview: "Interview District",
   };
 
-  // Find weakest category to prioritize
-  const weakest = categories.reduce((min, c) => (c.score < min.score ? c : min), categories[0]);
-
   if (goal && districts[goal]) return districts[goal];
-  if (weakest.name.includes("passive") || weakest.name.includes("articles")) return "Student District";
-  if (weakest.name.includes("present") || weakest.name.includes("past")) return "Travel District";
-  return "Travel District";
+  
+  // Default based on weakest category if no goal chosen yet
+  const weakest = categories.reduce((min, c) => (c.score < min.score ? c : min), categories[0]);
+  if (weakest.name === "prepositions" || weakest.name === "modal_verbs" || weakest.name === "articles") {
+    return "Travel District";
+  }
+  if (weakest.name === "comparative_superlative" || weakest.name === "subject_verb_agreement") {
+    return "Interview District";
+  }
+  return "Daily Life District";
 }

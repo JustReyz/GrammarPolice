@@ -57,18 +57,25 @@ export async function PATCH(
       );
     }
     vals.push(params.id);
-    // Calculate XP-based rank
-    const xpIndex = vals.findIndex((_, i) => sets[i]?.startsWith('xp'));
-    if (xpIndex !== -1) {
-      const newXp = body.xp;
+    // Calculate XP-based rank based on cumulative XP: (level - 1)*100 + xp
+    const hasXp = body.xp !== undefined;
+    const hasLevel = body.level !== undefined;
+    if (hasXp || hasLevel) {
+      const [currentRows] = await pool.execute("SELECT * FROM users WHERE id = ?", [params.id]);
+      const userRows = currentRows as any[];
+      const curUser = userRows[0];
+      const xpVal = hasXp ? body.xp : curUser.xp;
+      const lvlVal = hasLevel ? body.level : curUser.level;
+      const cumulativeXp = (lvlVal - 1) * 100 + xpVal;
+
       let xpRank = "🚗 Learner";
-      if (newXp >= 3500) xpRank = "👑 Grammar Legend";
-      else if (newXp >= 2500) xpRank = "⭐ Grammar Champion";
-      else if (newXp >= 1800) xpRank = "🏆 Certified Driver";
-      else if (newXp >= 1200) xpRank = "🚔 Elite Driver";
-      else if (newXp >= 700) xpRank = "🚖 Advanced Driver";
-      else if (newXp >= 300) xpRank = "🚙 Skilled Driver";
-      else if (newXp >= 100) xpRank = "🚘 Rookie Driver";
+      if (cumulativeXp >= 3500) xpRank = "👑 Grammar Legend";
+      else if (cumulativeXp >= 2500) xpRank = "⭐ Grammar Champion";
+      else if (cumulativeXp >= 1800) xpRank = "🏆 Certified Driver";
+      else if (cumulativeXp >= 1200) xpRank = "🚔 Elite Driver";
+      else if (cumulativeXp >= 700) xpRank = "🚖 Advanced Driver";
+      else if (cumulativeXp >= 300) xpRank = "🚙 Skilled Driver";
+      else if (cumulativeXp >= 100) xpRank = "🚘 Rookie Driver";
       sets.push('current_rank = ?');
       vals.splice(vals.length - 1, 0, xpRank);
     }

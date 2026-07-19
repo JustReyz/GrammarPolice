@@ -10,70 +10,92 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          deep: "#081426",
-          DEFAULT: "#0e2242",
-          card: "#14335e",
-          "card-2": "#1a3d6d",
+          deep: "#355cc6",
+          DEFAULT: "#2f57c7",
+          card: "#ffffff",
+          "card-2": "#f1f5ff",
         },
         gold: {
-          DEFAULT: "#f5c542",
-          light: "#ffdf7a",
+          DEFAULT: "#f2c94c",
+          light: "#ffe79a",
+          btn: "#f2c94c",
         },
         green: {
-          DEFAULT: "#2e9e52",
-          dark: "#1f7a3d",
+          DEFAULT: "#3159c7",
+          dark: "#2749a5",
+          btn: {
+            grad: "#3159c7",
+            hover: "#2749a5",
+          },
         },
         blue: {
-          btn: "#2f6fed",
-          "btn-2": "#5b8dff",
+          btn: {
+            grad: "#5c7fe6",
+          },
+          "btn-2": "#5c7fe6",
         },
         red: {
-          DEFAULT: "#e0455a",
+          DEFAULT: "#f16363",
         },
         ink: {
-          DEFAULT: "#eef3fb",
-          dim: "#9fb2cf",
+          DEFAULT: "#13213d",
+          dim: "#667085",
         },
-        line: "rgba(255,255,255,0.09)",
+        line: "rgba(19,33,61,0.12)",
+        frame: {
+          bg: "#f8faff",
+        },
+        statusbar: {
+          bg: "#ffffff",
+        },
+        masthead: {
+          sub: "#3159c7",
+        },
+        badge: {
+          bg: "#ffffff",
+        },
+        scene: {
+          sky: "#dfe8ff",
+          road: "#c6d2ef",
+        },
+        lane: {
+          stripe: "#3159c7",
+        },
+        gate: {
+          sign: "#ffffff",
+        },
+        tower: {
+          grad: "#d8e2fb",
+          top: "#ebf0ff",
+        },
+        shield: {
+          grad: "#f2c94c",
+          big: {
+            grad: "#f2c94c",
+          },
+        },
+        rewards: {
+          card: {
+            bg: "#f4f7ff",
+          },
+        },
+        fb: {
+          ok: "#3159c7",
+          bad: "#f16363",
+        },
+        opt: {
+          correct: "#3159c7",
+          wrong: "#f16363",
+        },
       },
       fontFamily: {
-        sans: ['"Segoe UI"', "system-ui", "-apple-system", "sans-serif"],
+        sans: ['"Nunito"', '"Segoe UI"', "system-ui", "-apple-system", "sans-serif"],
       },
       boxShadow: {
-        app: "0 18px 40px rgba(0,0,0,0.45)",
-        "green-glow": "0 6px 14px rgba(35,124,62,0.4)",
-        "green-btn": "0 10px 22px rgba(31,122,61,0.45)",
-        "green-btn-hover": "0 16px 28px rgba(31,122,61,0.55)",
-      },
-      backgroundImage: {
-        "navy-radial":
-          "radial-gradient(circle at 20% -10%, #163057 0%, transparent 55%), radial-gradient(circle at 100% 10%, #12294c 0%, transparent 45%), linear-gradient(180deg, #081426 0%, #060d1a 100%)",
-        "masthead-sub": "linear-gradient(180deg, #3cb15f, #237c3e)",
-        "frame-bg": "linear-gradient(160deg, #0e2242 0%, #081426 100%)",
-        "statusbar-bg":
-          "linear-gradient(180deg, rgba(255,255,255,0.04), transparent)",
-        "scene-sky":
-          "linear-gradient(180deg, #2a5c8f 0%, #3f7fae 38%, #4d9a63 55%, #3a7a4d 100%)",
-        "scene-road": "linear-gradient(180deg, #5b5f66, #3d3f44)",
-        "lane-stripe":
-          "repeating-linear-gradient(90deg, #ffd54f 0 34px, transparent 34px 64px)",
-        "gold-gradient": "linear-gradient(180deg, #ffdf7a, #f5c542)",
-        "blue-btn-grad": "linear-gradient(180deg, #5b8dff, #2f6fed)",
-        "green-btn-grad": "linear-gradient(180deg, #3cb15f, #1f7a3d)",
-        "rewards-card-bg": "linear-gradient(160deg, #173a29, #0e2419)",
-        "gate-sign-bg": "linear-gradient(160deg, #144a2a, #0d2e19)",
-        "tower-grad": "linear-gradient(180deg, #cfa93a, #a5811f)",
-        "tower-top-grad": "linear-gradient(180deg, #f5c542, #c79c26)",
-        "shield-grad":
-          "radial-gradient(circle at 35% 30%, #ffdf7a, #f5c542 60%, #b98a12 100%)",
-        "shield-big-grad":
-          "radial-gradient(circle at 35% 25%, #ffdf7a, #f5c542 55%, #a97e11 100%)",
-        "badge-bg": "linear-gradient(160deg, #123a24, #0b2818)",
-        "gold-btn": "linear-gradient(180deg, #ffe27a, #f5c542)",
-        "fb-ok": "linear-gradient(180deg, #3cb15f, #1f7a3d)",
-        "fb-bad": "linear-gradient(180deg, #ef5c6d, #c8283b)",
-        "opt-correct": "linear-gradient(180deg, #3cb15f, #1f7a3d)",
-        "opt-wrong": "linear-gradient(180deg, #ef5c6d, #c8283b)",
+        app: "0 18px 40px rgba(19,33,61,0.14)",
+        "green-glow": "0 8px 20px rgba(49,89,199,0.15)",
+        "green-btn": "0 12px 24px rgba(49,89,199,0.18)",
+        "green-btn-hover": "0 16px 30px rgba(49,89,199,0.24)",
       },
       keyframes: {
         spinStar: {

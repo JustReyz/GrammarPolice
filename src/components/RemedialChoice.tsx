@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { playSound } from "@/lib/playSound";
 
 interface RemedialChoiceProps {
   prompt: string;
@@ -33,11 +34,13 @@ export default function RemedialChoice({
     setChosen(val);
 
     if (norm(val) === norm(correct)) {
+      playSound("correct");
       setNotice(
         "Correct! Material mastered — moving to the next gate..."
       );
       setTimeout(onCorrect, 900);
     } else {
+      playSound("incorrect");
       setNotice(
         "Not quite right — review the correct answer above, then proceed to the next gate."
       );
@@ -47,39 +50,39 @@ export default function RemedialChoice({
 
   return (
     <div
-      className="animate-slide-fade bg-navy-card border border-line rounded-[16px] p-[20px] shadow-[0_10px_22px_rgba(0,0,0,.28)]"
-      style={{ maxWidth: "680px" }}
+      className="animate-slide-fade bg-navy-card border border-line rounded-[14px] p-[14px] shadow-[0_8px_18px_rgba(0,0,0,.08)]"
+      style={{ maxWidth: "620px" }}
     >
-      <div className="text-[16.5px] font-extrabold mb-[2px]">
+      <div className="text-[15px] font-extrabold mb-[2px] text-ink">
         Let&apos;s practice a bit more!
       </div>
-      <div className="text-[12.5px] text-ink-dim mb-[14px]">
+      <div className="text-[11.5px] text-ink-dim mb-[10px]">
         Complete the sentence using the correct form.
       </div>
-      <div className="bg-[rgba(255,255,255,.04)] rounded-[8px] px-[14px] py-[10px] text-[15px]">
+      <div className="bg-[rgba(255,255,255,0.05)] rounded-[7px] px-[12px] py-[8px] text-[14px] text-ink">
         {prompt}
       </div>
-      <div className="flex gap-[10px] flex-wrap my-[16px]">
+      <div className="flex gap-[8px] flex-wrap my-[12px]">
         {options.map((opt) => (
           <button
             key={opt}
             onClick={() => handleClick(opt)}
             disabled={disabled}
-            className={`px-[18px] py-[10px] rounded-[10px] text-[13.5px] font-semibold cursor-pointer transition-all duration-[0.15s] border ${
+            className={`px-[16px] py-[8px] rounded-[8px] text-[12.5px] font-semibold cursor-pointer transition-all duration-[0.15s] border ${
               chosen === opt
                 ? norm(opt) === norm(correct)
-                  ? "bg-opt-correct border-transparent text-white"
-                  : "bg-opt-wrong border-transparent text-white"
+                  ? "bg-masthead-sub border-transparent text-white"
+                  : "bg-red border-transparent text-white"
                 : disabled && norm(opt) === norm(correct)
-                ? "bg-opt-correct border-transparent text-white"
-                : "bg-[rgba(255,255,255,.06)] border-line text-white hover:bg-[rgba(255,255,255,.12)] hover:translate-y-[-2px]"
+                ? "bg-masthead-sub border-transparent text-white"
+                : "bg-[rgba(255,255,255,0.06)] border-line text-ink hover:bg-[rgba(255,255,255,0.1)] hover:translate-y-[-2px]"
             }`}
           >
             {opt}
           </button>
         ))}
       </div>
-      <div className="bg-[rgba(245,197,66,.12)] border border-[rgba(245,197,66,.4)] text-gold-light px-[14px] py-[10px] rounded-[8px] text-[12.5px] mt-[12px]">
+      <div className="bg-[rgba(244,192,149,0.12)] border border-[rgba(244,192,149,0.3)] text-[#f4c095] px-[12px] py-[8px] rounded-[7px] text-[11.5px] mt-[8px]">
         {notice}
       </div>
     </div>

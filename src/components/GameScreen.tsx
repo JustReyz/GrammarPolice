@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/AppContext";
 import Masthead from "./Masthead";
 import StatusBar from "./StatusBar";
@@ -59,10 +59,19 @@ export default function GameScreen() {
 
   const [isEvaluating, setIsEvaluating] = useState(false);
 
+  useEffect(() => {
+    if (screen === "gate") {
+      setLlmExplanation("");
+      setLlmAdvice("");
+      setLlmCorrectedSentence(null);
+    }
+  }, [currentGateIdx, screen, setLlmExplanation, setLlmAdvice, setLlmCorrectedSentence]);
+
   if (!user) return null;
   const u = user;
 
   const gate = gates[currentGateIdx];
+  console.log("GameScreen state:", { screen, gatesCount: gates?.length, currentGateIdx, gate });
   const accuracy = sessionAttempts
     ? Math.round((sessionCorrectFirstTry / sessionAttempts) * 100)
     : 100;
@@ -82,37 +91,45 @@ export default function GameScreen() {
   };
 
   const renderContent = () => {
-    switch (screen) {
-      case "gate":
-        return renderGateScreen();
-      case "feedback-correct":
-        return renderFeedbackCorrectScreen();
-      case "feedback-wrong":
-        return renderFeedbackWrongScreen();
-      case "remedial":
-        return renderRemedialScreen();
-      case "ai-analyzing":
-        return renderAnalyzingScreen();
-      case "adaptive":
-        return renderAdaptiveScreen();
-      case "summary":
-        return renderSummaryScreen();
-      default:
-        return null;
+    try {
+      switch (screen) {
+        case "gate":
+          return renderGateScreen();
+        case "feedback-correct":
+          return renderFeedbackCorrectScreen();
+        case "feedback-wrong":
+          return renderFeedbackWrongScreen();
+        case "remedial":
+          return renderRemedialScreen();
+        case "ai-analyzing":
+          return renderAnalyzingScreen();
+        case "adaptive":
+          return renderAdaptiveScreen();
+        case "summary":
+          return renderSummaryScreen();
+        default:
+          console.warn("Unknown screen in GameScreen:", screen);
+          return null;
+      }
+    } catch (err: any) {
+      console.error("CRITICAL RENDER ERROR IN GAMESCREEN:", err);
+      return (
+        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-[14px]">
+          <h4 className="font-bold">Render Error:</h4>
+          <p className="text-xs">{err.message}</p>
+        </div>
+      );
     }
   };
 
   function renderGateScreen() {
-    setLlmExplanation("");
-    setLlmAdvice("");
-    setLlmCorrectedSentence(null);
     if (!gate) {
       return (
-        <div className="text-center py-[60px]">
+        <div className="text-center py-[40px]">
           <p className="text-ink-dim">No gates available.</p>
           <button
             onClick={startJourney}
-            className="mt-[16px] bg-green-btn-grad text-white border-none px-[24px] py-[12px] rounded-[10px] font-extrabold cursor-pointer"
+            className="mt-[12px] bg-masthead-sub text-white border-none px-[20px] py-[10px] rounded-[8px] font-extrabold cursor-pointer text-[13px] hover:bg-[#2749a5]"
           >
             Back to Home
           </button>
@@ -124,7 +141,7 @@ export default function GameScreen() {
       return (
         <div className="animate-slide-fade">
           <GateScene
-            title={gate.title.replace(" GATE", "")}
+            title={(gate.title || "Gate").replace(" GATE", "")}
             showBubble={gate.npc_text}
             categoryLabel={getCatLabel(gate)}
           />
@@ -196,11 +213,11 @@ export default function GameScreen() {
     }
 
     return (
-      <div className="text-center py-[60px]">
+      <div className="text-center py-[40px]">
         <p className="text-ink-dim">Unknown gate type: {gate.type}</p>
         <button
           onClick={nextGate}
-          className="mt-[16px] bg-blue-btn-grad text-white border-none px-[24px] py-[12px] rounded-[10px] font-bold cursor-pointer"
+          className="mt-[12px] bg-[#5c7fe6] text-white border-none px-[20px] py-[10px] rounded-[8px] font-bold cursor-pointer text-[13px] hover:bg-[#4f72dd]"
         >
           Skip to Next
         </button>
@@ -292,15 +309,14 @@ export default function GameScreen() {
         accuracy={accuracy}
         xp={u.xp}
         coins={u.coins}
-        onContinue={() => window.location.reload()}
+        onContinue={() => setScreen("home")}
       />
     );
   }
 
   return (
-    <>
-      <Masthead />
-      <div className="w-full max-w-[1040px] bg-frame-bg border border-line rounded-[22px] shadow-app overflow-hidden relative">
+    <div className="min-h-screen w-full flex flex-col bg-white border-t-[2px] border-[#355cc6]">
+      <div className="w-full max-w-[1280px] flex-1 bg-white relative mx-auto">
         <StatusBar
           level={user.level}
           xp={user.xp}
@@ -311,21 +327,23 @@ export default function GameScreen() {
           rank={user.current_rank}
           pulseKey={pulseKey}
         />
-        <div className="flex min-h-[520px]">
-          <main className="flex-1 p-[26px_26px_30px] relative overflow-hidden">
-            {renderContent()}
+        <div className="flex h-full min-h-[calc(100vh-190px)]">
+          <main className="flex-1 p-[18px] md:p-[24px] relative overflow-hidden">
+            <div className="h-full min-h-[calc(100vh-238px)] flex flex-col justify-center max-w-[720px] mx-auto w-full">
+              {renderContent()}
+            </div>
           </main>
         </div>
       </div>
-      <footer className="w-full max-w-[1040px] flex justify-between items-center mt-[16px] text-[11.5px] text-ink-dim">
+      <footer className="w-full max-w-[1280px] flex justify-between items-center mt-[12px] pb-[14px] text-[10.5px] text-white/85 mx-auto px-[14px]">
         <span>Grammar Police — Interactive Session</span>
         <button
           onClick={logout}
-          className="bg-transparent border border-line text-ink-dim px-[12px] py-[4px] rounded-[8px] cursor-pointer text-[11px] hover:text-white"
+          className="bg-white/15 border border-white/20 text-white px-[10px] py-[4px] rounded-[999px] cursor-pointer text-[10.5px] hover:bg-white/20"
         >
           Logout ({u.username})
         </button>
       </footer>
-    </>
+    </div>
   );
 }
